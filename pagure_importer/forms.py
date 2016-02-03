@@ -1,4 +1,3 @@
-#import pagure_importer
 from sources.importer_github import GithubImporter
 import getpass
 
@@ -9,7 +8,7 @@ def form_github_issues():
     pagure_api_key = raw_input('Enter your pagure api key: ')
     pagure_project_name = raw_input('Enter pagure project name: ')
 
-    is_forked = raw_input('Is the pagure project a forked repo ? (y/n): ') or 'y'
+    is_forked = raw_input('Is the pagure project a forked repo ? (y/n): ') or 'n'
     if is_forked.lower() == 'y':
         pagure_username = raw_input('Enter your pagure username: ')
     else:

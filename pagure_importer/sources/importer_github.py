@@ -81,3 +81,4 @@ class GithubImporter():
             #change status of the issue if closed
             if github_issue.state.lower() == 'closed':
                 self.pagure.change_issue_status(issue_id, 'Fixed')
+

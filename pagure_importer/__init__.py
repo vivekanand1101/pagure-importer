@@ -1,1 +1,1 @@
-#import pagure_importer.sources
+from sources import *

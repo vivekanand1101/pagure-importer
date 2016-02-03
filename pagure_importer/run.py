@@ -1,6 +1,6 @@
-#import pagure_importer
-#from pagure_importer.forms import *
-from forms import *
+#!/usr/bin/env python
+
+from forms import form_github_issues
 from settings import IMPORT_SOURCES, IMPORT_OPTIONS
 
 def github_handler(item):

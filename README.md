@@ -2,9 +2,9 @@
 CLI tool for importing issues etc. from different sources like github to pagure
 
 ## How to run
-1. Execute
-   [run.py](https://pagure.io/pagure-importer/blob/master/f/pagure_importer/run.py) : ``python run.py`` from it's parent directory.
-2. Just answer what is asked, one by one.
+1. Install it using ```pip``` . ```pip install pagure_importer```
+2. Execute ```pgimport```
+3. Just answer what is asked, one by one.
 
 ### Present options for sources: github
 ### Present options for items: issues
