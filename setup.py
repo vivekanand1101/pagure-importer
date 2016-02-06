@@ -15,7 +15,7 @@ def read(fname):
 setup(
     name='pagure_importer',
     packages=['pagure_importer'],
-    version='0.0.2',
+    version='0.0.3',
     description='CLI tool for imports to Pagure',
     author='Vivek Anand',
     author_email='vivekanand1101@gmail.com',
