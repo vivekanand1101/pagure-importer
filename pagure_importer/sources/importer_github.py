@@ -33,10 +33,20 @@ class GithubImporter():
         which would be available for the new issue
         '''
         issues = self.pagure.list_issues()
+        pull_requests = self.pagure.list_requests()
+        max_issues = None
+        max_pull_requests = None
         try:
-            return max([int(issue['id']) for issue in issues]) + 1
+            max_issues = max([int(issue['id']) for issue in issues])
         except ValueError:
-            return 1
+            max_issues = 0
+
+        try:
+            max_pull_requests = max([int(pr['id']) for pr in pull_requests])
+        except ValueError:
+            max_pull_requests = 0
+
+        return max(max_issues, max_pull_requests) + 1
 
 
     def _get_repo(self, github_user):
