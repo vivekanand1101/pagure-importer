@@ -10,18 +10,18 @@ import json
 
 from repo import *
 
-def update_git(obj, repo_path, repofolder):
+def update_git(obj, repo_path, repo_folder):
     """ Update the given issue in its git.
     This method forks the provided repo, add/edit the issue whose file name
     is defined by the uid field of the issue and if there are additions/
     changes commit them and push them back to the original repo.
     """
 
-    if not repofolder:
+    if not repo_folder:
         return
 
     # Get the fork
-    repopath = os.path.join(repofolder, repo_path)
+    repopath = os.path.join(repo_folder, repo_path)
 
     # Clone the repo into a temp folder
     newpath = tempfile.mkdtemp(prefix='pagure-')

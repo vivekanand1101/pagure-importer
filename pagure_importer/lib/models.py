@@ -79,6 +79,7 @@ class IssueComment():
             'edited_on': self.edited_on.strftime('%s') if self.edited_on else None,
             'editor': self.editor or None
         }
+
         return output
 
 

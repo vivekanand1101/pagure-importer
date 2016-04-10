@@ -1,1 +1,2 @@
-from sources import *
+import lib
+import settings
