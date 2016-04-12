@@ -1,6 +1,6 @@
 import getpass
 
-from lib.sources.importer_github_new import GithubImporter
+from lib.sources.importer_github import GithubImporter
 from settings import REPO_PATH, REPO_NAME
 
 def form_github_issues():
