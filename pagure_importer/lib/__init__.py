@@ -1,6 +1,7 @@
 import git
 import models
 
+import csv
 import os
 import getpass
 import requests
@@ -13,8 +14,8 @@ from pagure_importer.lib.exceptions import FileNotFound, EmailNotFound
 
 def generate_json_for_github_contributors(github_username, github_password, \
                                                 github_project_name):
-    ''' Creates a file containing a list of dicts containing the username and emails
-    of the contributors in the given github project
+    ''' Creates a file containing a list of dicts containing the username and
+    emails of the contributors in the given github project
     '''
 
     github_obj = Github(github_username, github_password)
@@ -26,7 +27,8 @@ def generate_json_for_github_contributors(github_username, github_password, \
     while True:
         page += 1
         payload = {'page': page }
-        data_ = json.loads(requests.get(commits_url, params=payload, auth=HTTPBasicAuth(github_username, github_password)).text)
+        data_ = json.loads(requests.get(commits_url, params=payload,
+                    auth=HTTPBasicAuth(github_username, github_password)).text)
 
         if not data_:
             break
@@ -54,7 +56,7 @@ def generate_json_for_github_contributors(github_username, github_password, \
                     break
 
             if not present:
-                print 'contributor added: ', len(contributors) + 1
+                print 'contributor added: ', contributor_name
                 contributors.append(json_data)
 
     with open('contributors.json', 'w') as f:
@@ -78,7 +80,8 @@ def generate_json_for_github_issue_commentors(github_username, github_password, 
     while True:
         page += 1
         payload = {'page': page }
-        data_ = json.loads(requests.get(issue_comment_url, params=payload, auth=HTTPBasicAuth(github_username, github_password)).text)
+        data_ = json.loads(requests.get(issue_comment_url, params=payload,
+                    auth=HTTPBasicAuth(github_username, github_password)).text)
 
         if not data_:
             break
@@ -97,7 +100,7 @@ def generate_json_for_github_issue_commentors(github_username, github_password, 
                     break
 
             if not present:
-                print 'commentor added: ', len(issue_commentors) + 1
+                print 'commentor added: ', commentor
                 issue_commentors.append(commentor)
 
     with open('issue_commentors.json', 'w') as f:
@@ -128,8 +131,13 @@ def assemble_github_contributors_commentors():
             d = {'name': i, 'fullname': None, 'emails': []}
             names.append(d)
 
-    with open('assembled_commentors.json', 'w') as ac:
-        json.dump(names, ac)
+    with open('assembled_commentors.csv', 'w') as ac:
+        field_names = ['name', 'fullname', 'emails']
+        writer = csv.DictWriter(ac, fieldnames=field_names)
+
+        writer.writeheader()
+        for name in names:
+            writer.writerow(name)
 
 
 def github_get_commentor_email(name):
@@ -137,12 +145,19 @@ def github_get_commentor_email(name):
     assembled_commentors.json file
     '''
 
-    if not os.path.exists('assembled_commentors.json'):
+    if not os.path.exists('assembled_commentors.csv'):
         raise FileNotFound('The assembled_commentors.json file must be present \
                 Rerun the program and choose to generate the json files')
 
-    with open('assembled_commentors.json') as ac:
-        data = json.load(ac)
+    data = []
+    with open('assembled_commentors.csv') as ac:
+        reader = csv.DictReader(ac)
+        for row in reader:
+            data.append(dict( \
+                (('name', row['name']), \
+                ('fullname', row['fullname']), \
+                ('emails', row['emails']))))
+
 
     for i in data:
         if i.get('name', None) == name:
