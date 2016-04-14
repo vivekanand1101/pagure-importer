@@ -6,12 +6,12 @@ CLI tool for importing issues etc. from different sources like github to pagure
 
 ## How to run
 0. Clone the issue tracker for issues from pagure. Use: ```git clone --bare```
-and set the env variables: 'REPO_NAME' and 'REPO_PATH'
-ex: REPO_NAME='abc.git'; REPO_PATH='/home/vivek/'
-1. Activate the pagure tickets hook from project settings.
-2. Execute ```pgimport```
-3. Just answer what is asked. Check below instructions for particular source
-4. The script will make commits in your cloned bare repo: push the changes back to pagure.
+1. set the env variables: ```REPO_NAME``` and ```REPO_PATH```
+ex: REPO_NAME=abc.git; REPO_PATH=/home/vivek/
+2. Activate the pagure tickets hook from project settings.
+3. Execute ```pgimport```
+4. Just answer what is asked. Check below instructions for particular source
+5. The script will make commits in your cloned bare repo: push the changes back to pagure.
 
 ### Present options for sources: github
 ### Present options for items: issues
@@ -39,8 +39,8 @@ will be asked a question on whether you want to generate a json file for
 contributors and issue commentors. If you are running the script for github
 for the first time, the answer is 'y'.
 
-3. The above step will create 3 different json files: ```contributors.json```
-```issue_commentors.json``` and ```assembled_commentors.json```. The last file
+3. The above step will create 3 different files: ```contributors.json```
+```issue_commentors.json``` and ```assembled_commentors.csv```. The last file
 is where all the edit has to go. All the missing entries in the assembled
 commentors file has to be filled for the running of the script.
 
