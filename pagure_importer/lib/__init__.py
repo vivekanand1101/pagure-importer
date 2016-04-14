@@ -110,8 +110,8 @@ def generate_json_for_github_issue_commentors(github_username, github_password, 
 
 def assemble_github_contributors_commentors():
     ''' It uses the files: issue_commentors.json and contributors.json
-    Assembles and creates a file: assembled_commentors.json
-    To use: just fill the None and [] in the final file '''
+    Assembles and creates a file: assembled_commentors.csv
+    To use: just fill the empty blocks under emails column'''
 
     with open('issue_commentors.json', 'r') as ic:
         issue_names = json.load(ic)
