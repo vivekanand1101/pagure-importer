@@ -124,11 +124,12 @@ def assemble_github_contributors_commentors():
         found = False
         for j in contributors:
             if j.get('name', None) == i:
+                j['emails'] = j.get('emails')[0]
                 names.append(j)
                 found = True
 
         if not found:
-            d = {'name': i, 'fullname': None, 'emails': []}
+            d = {'name': i, 'fullname': None, 'emails': None}
             names.append(d)
 
     with open('assembled_commentors.csv', 'w') as ac:
@@ -142,7 +143,7 @@ def assemble_github_contributors_commentors():
 
 def github_get_commentor_email(name):
     ''' Will return the issue commentor email as given in the
-    assembled_commentors.json file
+    assembled_commentors.csv file
     '''
 
     if not os.path.exists('assembled_commentors.csv'):
@@ -162,7 +163,8 @@ def github_get_commentor_email(name):
     for i in data:
         if i.get('name', None) == name:
             if i['emails']:
-                return i['emails']
+                return str(i['emails'])
             else:
                 raise EmailNotFound('You need to fill out all the emails of the \
                         issue commentors')
+
