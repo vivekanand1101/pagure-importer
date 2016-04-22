@@ -1,21 +1,17 @@
 from xmlrpclib import ServerProxy
 import pagure_importer
 import pagure_importer.lib
-from pagure_importer.lib import models
-from fedora.client.fas2 import AccountSystem
-from datetime import datetime
+from pagure_importer.lib.fas import FASclient
+from pagure_importer.lib import trac
 
 
 class TracImporter():
     '''Pagure importer for trac instance'''
 
     def __init__(self, trac_project_url):
-        self.trac = ServerProxy(trac_project_url + '/rpc')
-        fas_url = 'https://admin.fedoraproject.org/accounts'
-        fas_username = 'user'
-        fas_password = 'pass'
-        self.fasclient = AccountSystem(fas_url, username=fas_username,
-                                       password=fas_password)
+        self.tracclient = ServerProxy(trac_project_url + '/rpc')
+        self.fasclient = FASclient('user', 'password',
+                                   'https://admin.fedoraproject.org/accounts')
 
     def _find_fas_user(self, user):
         person = self.fasclient.person_by_username(user)
@@ -115,14 +111,16 @@ class TracImporter():
     def import_issues(self, repo_path, repo_folder,
                       trac_query='max=0&order=id'):
         '''Import issues from trac instance using xmlrpc API'''
-        tickets_id = self.trac.ticket.query(trac_query)
+        tickets_id = self.tracclient.ticket.query(trac_query)
 
         for ticket_id in tickets_id:
 
-            pagure_issue = self._populate_issue(ticket_id)
+            pagure_issue = trac.populate_issue(self.tracclient,
+                                               self.fasclient, ticket_id)
 
-            pagure_issue_comments = self.trac.ticket.changeLog(ticket_id)
-            comments = self._populate_comments(pagure_issue_comments)
+            pagure_issue_comments = self.tracclient.ticket.changeLog(ticket_id)
+            comments = trac.populate_comments(self.fasclient,
+                                              pagure_issue_comments)
 
             # add all the comments to the issue object
             pagure_issue.comments = comments
