@@ -1,2 +1,5 @@
 PyGithub
 requests
+click
+python-fedora
+pygit2 >= 0.20.1
