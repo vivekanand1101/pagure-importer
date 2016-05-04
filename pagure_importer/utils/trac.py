@@ -1,4 +1,4 @@
-from pagure_importer.utils.models import IssueComment, Issue
+from pagure_importer.utils.models import IssueComment, Issue, User
 from datetime import datetime
 
 
@@ -37,7 +37,12 @@ def populate_comments(fasclient, trac_comments):
             pagure_issue_comment_edited_on = None
 
             # The User who commented
-            pagure_issue_comment_user = fasclient.find_fas_user(comment[1])
+            if fasclient:
+                pagure_issue_comment_user = fasclient.find_fas_user(comment[1])
+            else:
+                pagure_issue_comment_user = User(name='',
+                                                 fullname='',
+                                                 emails=[])
 
             # Object to represent comment on an issue
             pagure_issue_comment = IssueComment(
@@ -66,7 +71,13 @@ def populate_issue(trac, fasclient, ticket_id):
     pagure_issue_created_at = datetime.strptime(
         trac.ticket.get(ticket_id)[1].value, "%Y%m%dT%H:%M:%S")
 
-    pagure_issue_assignee = fasclient.find_fas_user(trac_ticket['owner'])
+    if fasclient:
+        pagure_issue_assignee = fasclient.find_fas_user(trac_ticket['owner'])
+        pagure_issue_user = fasclient.find_fas_user(trac_ticket['reporter'])
+    else:
+        anonymous = User(name='', fullname='', emails=[])
+        pagure_issue_assignee = anonymous
+        pagure_issue_user = anonymous
 
     pagure_issue_tags = get_ticket_tags(trac_ticket)
 
@@ -74,7 +85,6 @@ def populate_issue(trac, fasclient, ticket_id):
     pagure_issue_blocks = []
     pagure_issue_is_private = False
 
-    pagure_issue_user = fasclient.find_fas_user(trac_ticket['reporter'])
     pagure_issue = Issue(
         id=ticket_id,
         title=pagure_issue_title,
