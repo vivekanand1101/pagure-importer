@@ -32,7 +32,7 @@ setup(
     license='GNU General Public License v2.0',
     entry_points={
         'console_scripts': [
-            'pgimport = pagure_importer.run:main'
+            'pgimport = pagure_importer.app:app'
         ],
     },
     include_package_data=True,

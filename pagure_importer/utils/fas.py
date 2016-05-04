@@ -1,5 +1,5 @@
 from fedora.client.fas2 import AccountSystem
-from pagure_importer.lib.models import User
+from pagure_importer.utils.models import User
 
 
 class FASclient ():

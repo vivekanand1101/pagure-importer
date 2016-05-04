@@ -8,9 +8,8 @@ import requests
 import json
 from github import Github
 from requests.auth import HTTPBasicAuth
-import pagure_importer
-import pagure_importer.lib
-from pagure_importer.lib.exceptions import FileNotFound, EmailNotFound
+
+from pagure_importer.utils.exceptions import FileNotFound, EmailNotFound
 
 def generate_json_for_github_contributors(github_username, github_password, \
                                                 github_project_name):
@@ -167,4 +166,3 @@ def github_get_commentor_email(name):
             else:
                 raise EmailNotFound('You need to fill out all the emails of the \
                         issue commentors')
-

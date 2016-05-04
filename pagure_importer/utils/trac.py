@@ -1,4 +1,4 @@
-from pagure_importer.lib.models import IssueComment, Issue
+from pagure_importer.utils.models import IssueComment, Issue
 from datetime import datetime
 
 

@@ -1,9 +1,13 @@
 from github import Github
-import pagure_importer
-import pagure_importer.lib
-from pagure_importer.lib import models
-from pagure_importer.lib import github_get_commentor_email
-from pagure_importer.lib.exceptions import GithubBadCredentials, GithubRepoNotFound
+
+from pagure_importer.utils import models
+from pagure_importer.utils import github_get_commentor_email
+from pagure_importer.utils.git import update_git
+from pagure_importer.utils.exceptions import (
+    GithubBadCredentials,
+    GithubRepoNotFound
+)
+
 
 class GithubImporter():
     ''' Imports from Github using PyGithub and libpagure '''
@@ -36,16 +40,16 @@ class GithubImporter():
 
         for github_issue in repo.get_issues(state=status):
 
-            #title of the issue
+            # title of the issue
             pagure_issue_title = github_issue.title
 
-            #body of the issue
+            # body of the issue
             if github_issue.body:
                 pagure_issue_content = github_issue.body
             else:
                 pagure_issue_content = '#No Description Provided'
 
-            #Some details of a issue
+            # Some details of a issue
             if github_issue.state != 'closed':
                 pagure_issue_status = 'Open'
             else:
@@ -53,7 +57,7 @@ class GithubImporter():
 
             pagure_issue_created_at = github_issue.created_at
 
-            #Not sure how to deal with this atm
+            # Not sure how to deal with this atm
             pagure_issue_assignee = None
 
             if github_issue.labels:
@@ -62,13 +66,13 @@ class GithubImporter():
                 pagure_issue_tags = []
 
 
-            #few things not supported by github
+            # few things not supported by github
             pagure_issue_depends = []
             pagure_issue_blocks = []
             pagure_issue_is_private = False
 
 
-            #User who created the issue
+            # User who created the issue
             pagure_issue_user = models.User(
                     name=github_issue.user.login,
                     fullname=github_issue.user.name,
@@ -89,7 +93,7 @@ class GithubImporter():
                     assignee = pagure_issue_assignee)
 
 
-            #comments on the issue
+            # comments on the issue
             comments = []
             for comment in github_issue.get_comments():
 
@@ -100,22 +104,22 @@ class GithubImporter():
                 pagure_issue_comment_updated_at = comment.updated_at
 
 
-                #No idea what to do with this right now
-                #editor: not supported by github api
+                # No idea what to do with this right now
+                # editor: not supported by github api
                 pagure_issue_comment_parent = None
                 pagure_issue_comment_editor = None
 
-                #comment updated at
+                # comment updated at
                 pagure_issue_comment_edited_on = comment.updated_at
 
-                #The User who commented
+                # The User who commented
                 pagure_issue_comment_user = models.User(
                         name=comment_user.login,
                         fullname=comment_user.name,
                         emails=[comment_user.email] if comment_user.email \
                                 else [github_get_commentor_email(comment_user.login)])
 
-                #Object to represent comment on an issue
+                # Object to represent comment on an issue
                 pagure_issue_comment = models.IssueComment(
                         id=None,
                         comment=pagure_issue_comment_body,
@@ -127,8 +131,8 @@ class GithubImporter():
 
                 comments.append(pagure_issue_comment.to_json())
 
-            #add all the comments to the issue object
+            # add all the comments to the issue object
             pagure_issue.comments = comments
 
-            #update the local git repo
-            pagure_importer.lib.git.update_git(pagure_issue, repo_path, repo_folder)
+            # update the local git repo
+            update_git(pagure_issue, repo_path, repo_folder)
