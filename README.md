@@ -2,25 +2,54 @@
 CLI tool for importing issues etc. from different sources like github to pagure
 
 ## Installation
+---
 1. Install it using ```pip``` . ```pip install pagure_importer```
 
 ## How to run
+---
 0. Clone the issue tracker for issues from pagure. Use: ```git clone --bare```
 1. set the env variables: ```REPO_NAME``` and ```REPO_PATH```
 ex: REPO_NAME=abc.git; REPO_PATH=/home/vivek/
 2. Activate the pagure tickets hook from project settings.
-3. Execute ```pgimport```
+3. Execute ```pgimport```. See Usage section
 4. Just answer what is asked. Check below instructions for particular source
 5. The script will make commits in your cloned bare repo: push the changes back to pagure.
 
-### Present options for sources: github
-### Present options for items: issues
+
+## Usage
+-----
+
+
+    $ pgimport --help
+    Usage: pgimport [OPTIONS] COMMAND [ARGS]...
+
+    Options:
+      --help  Show this message and exit.
+
+    Commands:
+      fedorahosted
+      github
+
+
+The fedorahosted command can be used to import issues from a fedorahosted project to pagure
+
+    $ pgimport fedorahosted https://fedorahosted.org/fedocal
+
+
+The github command can be used to import issues from a github project to pagure
+
+    $ pgimport github
+
 
 ### Tools used:
+---
 1. [PyGithub](https://github.com/PyGithub/PyGithub) - a python library for [github](https://github.com/) api.
+2. [click](https://github.com/pallets/click) - Python package for creating beautiful command line interfaces
+3. [python-fedora](https://fedorahosted.org/python-fedora/) - A collection of python code that allows programs to talk to Fedora Services
 
 
 ## How it works: Github Issues
+---
 0. For github issues, there is a bit of pre-processing so, the process is
 not very user friendly. The reason behind the pre-processing is that: github
 doesn't give away the email ids of issue commentors unless the commentor
