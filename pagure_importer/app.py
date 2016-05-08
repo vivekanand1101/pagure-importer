@@ -15,7 +15,6 @@ __all__ = [
     'app',
 ]
 
-# from .commands import github
 from .commands import fedorahosted
 from .commands import github
 
