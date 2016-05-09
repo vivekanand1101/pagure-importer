@@ -7,7 +7,7 @@ class TracImporter():
     '''Pagure importer for trac instance'''
 
     def __init__(self, trac_project_url, fasclient=None):
-        self.tracclient = ServerProxy(trac_project_url + '/rpc')
+        self.tracclient = ServerProxy(trac_project_url)
         self.fasclient = fasclient
 
     def import_issues(self, repo_path, repo_folder,
@@ -28,5 +28,6 @@ class TracImporter():
             pagure_issue.comments = comments
 
             # update the local git repo
-            print 'Update repo with issue :' + str(ticket_id)
+            print 'Update repo with issue :' + str(ticket_id) + '/' +\
+                str(tickets_id[-1])
             update_git(pagure_issue, repo_path, repo_folder)
