@@ -11,5 +11,10 @@ def fedorahosted(project_url):
     fas_password = getpass.getpass('Enter your FAS password: ')
     fasclient = FASclient(fas_username, fas_password,
                                'https://admin.fedoraproject.org/accounts')
-    trac_importer = importer_trac.TracImporter(project_url, fasclient)
+
+    rpc_login = fas_username + ':' + fas_password + '@'
+    url_index = project_url.find('://')
+    rpc_url = project_url[:url_index+3] + rpc_login + project_url[url_index+3:]\
+        + '/login/xmlrpc'
+    trac_importer = importer_trac.TracImporter(rpc_url, fasclient)
     trac_importer.import_issues(repo_path=REPO_NAME, repo_folder=REPO_PATH)
