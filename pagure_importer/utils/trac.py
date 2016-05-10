@@ -2,10 +2,6 @@ from pagure_importer.utils.models import IssueComment, Issue, User
 from datetime import datetime
 
 
-def get_ticket_tags(trac_ticket):
-    return []
-
-
 def get_ticket_status(trac_ticket):
     ''' Converts Trac ticket status
         to Pagure issue status'''
@@ -79,7 +75,15 @@ def populate_issue(trac, fasclient, ticket_id):
         pagure_issue_assignee = anonymous
         pagure_issue_user = anonymous
 
-    pagure_issue_tags = get_ticket_tags(trac_ticket)
+    pagure_issue_tags = []
+    if trac_ticket['type'] != '':
+        pagure_issue_tags.append(trac_ticket['type'])
+    if trac_ticket['milestone'] != '':
+        pagure_issue_tags.append(trac_ticket['milestone'])
+    if trac_ticket['component'] != '':
+        pagure_issue_tags.append(trac_ticket['component'])
+    if trac_ticket['version'] != '':
+        pagure_issue_tags.append(trac_ticket['version'])
 
     pagure_issue_depends = []
     pagure_issue_blocks = []
