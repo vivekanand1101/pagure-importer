@@ -10,7 +10,7 @@ class TracImporter():
         self.tracclient = ServerProxy(trac_project_url)
         self.fasclient = fasclient
 
-    def import_issues(self, repo_path, repo_folder,
+    def import_issues(self, repo_path, repo_folder, tags,
                       trac_query='max=0&order=id'):
         '''Import issues from trac instance using xmlrpc API'''
         tickets_id = self.tracclient.ticket.query(trac_query)
@@ -18,7 +18,7 @@ class TracImporter():
         for ticket_id in tickets_id:
 
             pagure_issue = trac.populate_issue(self.tracclient,
-                                               self.fasclient, ticket_id)
+                                               self.fasclient, ticket_id, tags)
 
             pagure_issue_comments = self.tracclient.ticket.changeLog(ticket_id)
             comments = trac.populate_comments(self.fasclient,

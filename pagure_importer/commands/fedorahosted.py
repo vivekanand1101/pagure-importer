@@ -6,7 +6,8 @@ from pagure_importer.utils.fas import FASclient
 
 @app.command()
 @click.argument('project_url')
-def fedorahosted(project_url):
+@click.option('--tags', help="Import pagure tags:", is_flag=True)
+def fedorahosted(project_url, tags):
     fas_username = raw_input('Enter you FAS Username: ')
     fas_password = getpass.getpass('Enter your FAS password: ')
     fasclient = FASclient(fas_username, fas_password,
@@ -17,4 +18,5 @@ def fedorahosted(project_url):
     rpc_url = project_url[:url_index+3] + rpc_login + project_url[url_index+3:]\
         + '/login/xmlrpc'
     trac_importer = importer_trac.TracImporter(rpc_url, fasclient)
-    trac_importer.import_issues(repo_path=REPO_NAME, repo_folder=REPO_PATH)
+    trac_importer.import_issues(repo_path=REPO_NAME, repo_folder=REPO_PATH,
+                                tags=tags)

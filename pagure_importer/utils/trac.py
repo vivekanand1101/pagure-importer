@@ -54,7 +54,7 @@ def populate_comments(fasclient, trac_comments):
     return comments
 
 
-def populate_issue(trac, fasclient, ticket_id):
+def populate_issue(trac, fasclient, ticket_id, tags):
     trac_ticket = trac.ticket.get(ticket_id)[3]
     pagure_issue_title = trac_ticket['summary']
     pagure_issue_content = trac_ticket['description']
@@ -76,14 +76,15 @@ def populate_issue(trac, fasclient, ticket_id):
         pagure_issue_user = anonymous
 
     pagure_issue_tags = []
-    if trac_ticket['type'] != '':
-        pagure_issue_tags.append(trac_ticket['type'])
-    if trac_ticket['milestone'] != '':
-        pagure_issue_tags.append(trac_ticket['milestone'])
-    if trac_ticket['component'] != '':
-        pagure_issue_tags.append(trac_ticket['component'])
-    if trac_ticket['version'] != '':
-        pagure_issue_tags.append(trac_ticket['version'])
+    if tags:
+        if trac_ticket['type'] != '':
+            pagure_issue_tags.append(trac_ticket['type'])
+        if trac_ticket['milestone'] != '':
+            pagure_issue_tags.append(trac_ticket['milestone'])
+        if trac_ticket['component'] != '':
+            pagure_issue_tags.append(trac_ticket['component'])
+        if trac_ticket['version'] != '':
+            pagure_issue_tags.append(trac_ticket['version'])
 
     pagure_issue_depends = []
     pagure_issue_blocks = []
