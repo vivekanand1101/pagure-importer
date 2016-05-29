@@ -1,8 +1,11 @@
 import click
+import os
 import getpass
-from pagure_importer.app import app, REPO_NAME, REPO_PATH
-from pagure_importer.utils import importer_trac
+from pagure_importer.app import app, REPO_NAME
+from pagure_importer.utils import importer_trac, display_repo
 from pagure_importer.utils.fas import FASclient
+
+REPO_PATH='/tmp/'
 
 @app.command()
 @click.argument('project_url')
@@ -17,6 +20,8 @@ def fedorahosted(project_url, tags):
     url_index = project_url.find('://')
     rpc_url = project_url[:url_index+3] + rpc_login + project_url[url_index+3:]\
         + '/login/xmlrpc'
+    display_repo()   
+    repo_name = raw_input('Choose the import destination repo : ')
     trac_importer = importer_trac.TracImporter(rpc_url, fasclient)
-    trac_importer.import_issues(repo_path=REPO_NAME, repo_folder=REPO_PATH,
+    trac_importer.import_issues(repo_path=repo_name, repo_folder=REPO_PATH,
                                 tags=tags)

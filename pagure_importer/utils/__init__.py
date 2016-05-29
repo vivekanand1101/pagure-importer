@@ -11,6 +11,13 @@ from requests.auth import HTTPBasicAuth
 
 from pagure_importer.utils.exceptions import FileNotFound, EmailNotFound
 
+def display_repo():
+    print '#### Repo available ####'    
+    for file in os.listdir('/tmp/'):
+        if file.endswith('.git'):
+            print '  * ' + file
+    print
+
 def generate_json_for_github_contributors(github_username, github_password, \
                                                 github_project_name):
     ''' Creates a file containing a list of dicts containing the username and
