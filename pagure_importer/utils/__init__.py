@@ -10,16 +10,20 @@ from github import Github
 from requests.auth import HTTPBasicAuth
 
 from pagure_importer.utils.exceptions import FileNotFound, EmailNotFound
+from pagure_importer.app import REPO_PATH
+
 
 def display_repo():
-    print '#### Repo available ####'    
-    for file in os.listdir('/tmp/'):
+    print '#### Repo available ####'
+    for file in os.listdir(REPO_PATH):
         if file.endswith('.git'):
             print '  * ' + file
     print
 
-def generate_json_for_github_contributors(github_username, github_password, \
-                                                github_project_name):
+
+def generate_json_for_github_contributors(github_username,
+                                                                               github_password,
+                                                                               github_project_name):
     ''' Creates a file containing a list of dicts containing the username and
     emails of the contributors in the given github project
     '''
@@ -32,7 +36,7 @@ def generate_json_for_github_contributors(github_username, github_password, \
     contributors = []
     while True:
         page += 1
-        payload = {'page': page }
+        payload = {'page': page}
         data_ = json.loads(requests.get(commits_url, params=payload,
                     auth=HTTPBasicAuth(github_username, github_password)).text)
 
@@ -71,8 +75,9 @@ def generate_json_for_github_contributors(github_username, github_password, \
     return
 
 
-def generate_json_for_github_issue_commentors(github_username, github_password, \
-                                                github_project_name):
+def generate_json_for_github_issue_commentors(github_username,
+                                                                                          github_password,
+                                                                                          github_project_name):
     ''' Will create a json file containing details of all the user
     who have commented on any issue in the given project
     '''
@@ -85,7 +90,7 @@ def generate_json_for_github_issue_commentors(github_username, github_password, 
     issue_commentors = []
     while True:
         page += 1
-        payload = {'page': page }
+        payload = {'page': page}
         data_ = json.loads(requests.get(issue_comment_url, params=payload,
                     auth=HTTPBasicAuth(github_username, github_password)).text)
 
@@ -160,11 +165,10 @@ def github_get_commentor_email(name):
     with open('assembled_commentors.csv') as ac:
         reader = csv.DictReader(ac)
         for row in reader:
-            data.append(dict( \
-                (('name', row['name']), \
-                ('fullname', row['fullname']), \
+            data.append(dict(
+                (('name', row['name']),
+                ('fullname', row['fullname']),
                 ('emails', row['emails']))))
-
 
     for i in data:
         if i.get('name', None) == name:

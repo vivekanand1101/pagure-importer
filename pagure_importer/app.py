@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-
 import click
-import os
+import tempfile
 
-REPO_NAME = os.environ.get('REPO_NAME', None)  # this has to be a bare repo
-REPO_PATH = os.environ.get('REPO_PATH', None)  # the parent of the git directory
+REPO_NAME = ''
+REPO_PATH = tempfile.gettempdir()
 
 
 @click.group()
