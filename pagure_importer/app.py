@@ -16,6 +16,7 @@ __all__ = [
 from .commands import fedorahosted
 from .commands import github
 from .commands import clone
+from .commands import push
 
 if __name__ == '__main__':
     app()
