@@ -7,13 +7,11 @@ CLI tool for importing issues etc. from different sources like github to pagure
 
 ## How to run
 ---
-0. Clone the issue tracker for issues from pagure. Use: ```git clone --bare```
-1. set the env variables: ```REPO_NAME``` and ```REPO_PATH```
-ex: REPO_NAME=abc.git; REPO_PATH=/home/vivek/
-2. Activate the pagure tickets hook from project settings.
-3. Execute ```pgimport```. See Usage section
-4. Just answer what is asked. Check below instructions for particular source
-5. The script will make commits in your cloned bare repo: push the changes back to pagure.
+0. Clone the issue tracker for issues from pagure. Use: ```pgimport clone  ssh://git@pagure.io/tickets/foobar.git```
+1. Activate the pagure tickets hook from project settings.
+2. Execute ```pgimport```. See Usage section
+3. Just answer what is asked. Check below instructions for particular source
+4. The script will make commits in your cloned bare repo: push the changes back to pagure.
 
 
 ## Usage
@@ -27,13 +25,26 @@ ex: REPO_NAME=abc.git; REPO_PATH=/home/vivek/
       --help  Show this message and exit.
 
     Commands:
+      clone
       fedorahosted
       github
 
+The clone command can be used to clone the pagure ticket repository:
+
+    $ pgimport clone ssh://git@pagure.io/tickets/foobar.git
+
 
 The fedorahosted command can be used to import issues from a fedorahosted project to pagure
+    
+    $ pgimport fedorahosted --help
+        Usage: pgimport fedorahosted [OPTIONS] PROJECT_URL
 
-    $ pgimport fedorahosted https://fedorahosted.org/fedocal
+        Options:
+        --tags  Import pagure tags:
+        --help  Show this message and exit.
+
+
+    $ pgimport fedorahosted https://fedorahosted.org/foobar
 
 
 The github command can be used to import issues from a github project to pagure
