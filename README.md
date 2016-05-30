@@ -11,7 +11,7 @@ CLI tool for importing issues etc. from different sources like github to pagure
 1. Activate the pagure tickets hook from project settings.
 2. Execute ```pgimport```. See Usage section
 3. Just answer what is asked. Check below instructions for particular source
-4. The script will make commits in your cloned bare repo: push the changes back to pagure.
+4. The script will make commits in your cloned repo: push the changes back to pagure. Use : ```pgimport push foobar.git```
 
 
 ## Usage
@@ -28,6 +28,7 @@ CLI tool for importing issues etc. from different sources like github to pagure
       clone
       fedorahosted
       github
+      push
 
 The clone command can be used to clone the pagure ticket repository:
 
@@ -50,6 +51,10 @@ The fedorahosted command can be used to import issues from a fedorahosted projec
 The github command can be used to import issues from a github project to pagure
 
     $ pgimport github
+
+The push command can be used to push a clone pagure ticket repo back to pagure.
+
+    $ pgimport push foobar.git
 
 
 ### Tools used:
