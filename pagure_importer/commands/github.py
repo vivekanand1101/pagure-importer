@@ -1,7 +1,7 @@
 import click
 import getpass
 
-from pagure_importer.app import app, REPO_NAME, REPO_PATH
+from pagure_importer.app import app, REPO_PATH
 from pagure_importer.utils.importer_github import GithubImporter
 from pagure_importer.utils import (
     generate_json_for_github_contributors,
@@ -16,17 +16,21 @@ def form_github_issues():
     github_project_name = raw_input('Enter github project name like: "pypingou/pagure" without quotes: ')
     return (github_username, github_password, github_project_name)
 
+
 @app.command()
 def github():
     github_username, github_password, github_project_name = form_github_issues()
     gen_json = raw_input(
-    'Do you want to generate jsons for project\'s contributers and issue commentors? (y/n): ')
+        'Do you want to generate jsons for project\'s contributers and issue commentors? (y/n): ')
     if gen_json == 'n':
         github_importer = GithubImporter(
             github_username=github_username,
             github_password=github_password,
             github_project_name=github_project_name)
-        github_importer.import_issues(repo_path=REPO_NAME, repo_folder=REPO_PATH)
+
+        pagure_importer.utils.display_repo()
+        repo_name = raw_input('Choose the import destination repo : ')
+        github_importer.import_issues(repo_path=repo_name, repo_folder=REPO_PATH)
     else:
         generate_json_for_github_contributors(
             github_username,

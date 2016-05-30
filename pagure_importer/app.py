@@ -2,7 +2,6 @@
 import click
 import tempfile
 
-REPO_NAME = ''
 REPO_PATH = tempfile.gettempdir()
 
 
