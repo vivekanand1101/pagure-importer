@@ -1,6 +1,7 @@
 import click
 import os
 import getpass
+import pagure_importer
 from pagure_importer.app import app, REPO_PATH
 from pagure_importer.utils import importer_trac
 from pagure_importer.utils.fas import FASclient
