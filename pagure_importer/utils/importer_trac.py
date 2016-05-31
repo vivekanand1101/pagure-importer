@@ -10,7 +10,7 @@ class TracImporter():
         self.tracclient = ServerProxy(trac_project_url)
         self.fasclient = fasclient
 
-    def import_issues(self, repo_path, repo_folder, tags,
+    def import_issues(self, repo_name, repo_folder, tags,
                       trac_query='max=0&order=id'):
         '''Import issues from trac instance using xmlrpc API'''
         tickets_id = self.tracclient.ticket.query(trac_query)
@@ -28,6 +28,6 @@ class TracImporter():
             pagure_issue.comments = comments
 
             # update the local git repo
-            print 'Update repo with issue :' + str(ticket_id) + '/' +\
+            print 'Update ' + repo_name + ' with issue :' + str(ticket_id) + '/' +\
                 str(tickets_id[-1])
-            update_git(pagure_issue, repo_path, repo_folder)
+            update_git(pagure_issue, repo_name, repo_folder)

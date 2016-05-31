@@ -14,11 +14,16 @@ from pagure_importer.app import REPO_PATH
 
 
 def display_repo():
+    repo = []
+    index = 0
     print '#### Repo available ####'
     for file in os.listdir(REPO_PATH):
         if file.endswith('.git'):
-            print '  * ' + file
+            index += 1
+            print str(index) + ' - ' + file
+            repo.append(file)
     print
+    return repo
 
 
 def generate_json_for_github_contributors(github_username,

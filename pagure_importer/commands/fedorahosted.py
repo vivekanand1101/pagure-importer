@@ -20,8 +20,12 @@ def fedorahosted(project_url, tags):
     url_index = project_url.find('://')
     rpc_url = project_url[:url_index+3] + rpc_login +\
         project_url[url_index+3:] + '/login/xmlrpc'
-    pagure_importer.utils.display_repo()
-    repo_name = raw_input('Choose the import destination repo : ')
-    trac_importer = importer_trac.TracImporter(rpc_url, fasclient)
-    trac_importer.import_issues(repo_path=repo_name, repo_folder=REPO_PATH,
-                                tags=tags)
+    repos = pagure_importer.utils.display_repo()
+    if repos:
+        repo_index = raw_input('Choose the import destination repo (default 1) : ') or 1
+        repo_name = repos[int(repo_index)-1]
+        trac_importer = importer_trac.TracImporter(rpc_url, fasclient)
+        trac_importer.import_issues(repo_name=repo_name, repo_folder=REPO_PATH,
+                                    tags=tags)
+    else:
+        click.echo('No ticket repository found. Use pgimport clone command')
