@@ -1,6 +1,6 @@
 import click
 import getpass
-
+import pagure_importer
 from pagure_importer.app import app, REPO_PATH
 from pagure_importer.utils.importer_github import GithubImporter
 from pagure_importer.utils import (
@@ -28,9 +28,14 @@ def github():
             github_password=github_password,
             github_project_name=github_project_name)
 
-        pagure_importer.utils.display_repo()
-        repo_name = raw_input('Choose the import destination repo : ')
-        github_importer.import_issues(repo_path=repo_name, repo_folder=REPO_PATH)
+        repos = pagure_importer.utils.display_repo()
+        if repos:
+            repo_index = raw_input('Choose the import destination repo (default 1) : ') or 1
+            repo_name = repos[int(repo_index)-1]
+            github_importer.import_issues(repo_path=repo_name, repo_folder=REPO_PATH)
+        else:
+            click.echo('No ticket repository found. Use pgimport clone command')
+
     else:
         generate_json_for_github_contributors(
             github_username,
