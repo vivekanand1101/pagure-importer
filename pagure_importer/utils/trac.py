@@ -85,14 +85,10 @@ def populate_issue(trac, fasclient, ticket_id, tags):
 
     pagure_issue_tags = []
     if tags:
-        if trac_ticket['type'] != '':
-            pagure_issue_tags.append(trac_ticket['type'])
-        if trac_ticket['milestone'] != '':
-            pagure_issue_tags.append(trac_ticket['milestone'])
-        if trac_ticket['component'] != '':
-            pagure_issue_tags.append(trac_ticket['component'])
-        if trac_ticket['version'] != '':
-            pagure_issue_tags.append(trac_ticket['version'])
+        pagure_issue_tags = filter(lambda x: x != '', trac_ticket['keywords'].split(' '))
+
+        if meta[3]['milestone'] != '':
+            pagure_issue_tags.append(str(trac_ticket['milestone']))
 
     pagure_issue_depends = []
     pagure_issue_blocks = []
