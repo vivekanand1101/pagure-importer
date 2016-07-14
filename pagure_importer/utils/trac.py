@@ -56,9 +56,17 @@ def populate_comments(fasclient, trac_comments):
 
 def populate_issue(trac, fasclient, ticket_id, tags):
     trac_ticket = trac.ticket.get(ticket_id)[3]
-    pagure_issue_title = trac_ticket['summary']
-    pagure_issue_content = trac_ticket['description']
+    trac_attachments = trac.ticket.listAttachments(ticket_id)
 
+    pagure_attachment = {}
+    for attachment in trac_attachments:
+        filename = attachment[0]
+        content = trac.ticket.getAttachment(ticket_id, filename)
+        pagure_attachment[filename] = content
+
+    pagure_issue_title = trac_ticket['summary']
+
+    pagure_issue_content = trac_ticket['description']
     if pagure_issue_content == '':
         pagure_issue_content = '#No Description Provided'
 
@@ -98,6 +106,7 @@ def populate_issue(trac, fasclient, ticket_id, tags):
         date_created=pagure_issue_created_at,
         user=pagure_issue_user.to_json(),
         private=pagure_issue_is_private,
+        attachment=pagure_attachment,
         tags=pagure_issue_tags,
         depends=pagure_issue_depends,
         blocks=pagure_issue_blocks,

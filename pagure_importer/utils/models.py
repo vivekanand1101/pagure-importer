@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-
 import datetime
 import json
 import uuid
+
 
 class Issue():
     ''' Represents an Issue '''
 
     def __init__(
             self, id, title, content,
-            status, date_created, user, private, tags,
+            status, date_created, user, private, attachment, tags,
             depends, blocks, assignee, comments=None):
 
         self.id = id
@@ -19,6 +19,7 @@ class Issue():
         self.date_created = date_created
         self.user = user
         self.private = private
+        self.attachment = attachment
         self.tags = tags
         self.depends = depends
         self.blocks = blocks
@@ -46,6 +47,9 @@ class Issue():
         }
 
         return output
+
+    def get_attachment(self):
+        return self.attachment
 
     @property
     def isa(self):
