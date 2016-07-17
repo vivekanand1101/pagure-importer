@@ -1,7 +1,8 @@
 ''' Code taken from https://pagure.io/pagure/blob/master/f/pagure/lib/git.py
     by pingou@pingoured.fr
-'''
 
+    Modified by Clement Verna <cverna@tutanota.com> to add attachment support
+'''
 import shutil
 import os
 import pygit2
@@ -9,6 +10,7 @@ import tempfile
 import json
 
 from repo import *
+
 
 def update_git(obj, repo_path, repo_folder):
     """ Update the given issue in its git.
@@ -36,6 +38,18 @@ def update_git(obj, repo_path, repo_folder):
     added = False
     if not os.path.exists(file_path):
         added = True
+
+    # If we have attachments
+    attachments = obj.get_attachment()
+    if attachments:
+        if not os.path.exists(os.path.join(newpath, 'files')):
+            os.mkdir(os.path.join(newpath, 'files'))
+
+        for key in attachments.keys():
+            attach_path = os.path.join(newpath, 'files', key)
+            with open(attach_path, 'w') as stream:
+                stream.write(str(attachments[key]))
+            index.add('files/'+key)
 
     # Write down what changed
     with open(file_path, 'w') as stream:
