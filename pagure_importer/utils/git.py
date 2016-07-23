@@ -46,10 +46,11 @@ def update_git(obj, repo_path, repo_folder):
             os.mkdir(os.path.join(newpath, 'files'))
 
         for key in attachments.keys():
-            attach_path = os.path.join(newpath, 'files', key)
+            attach_path = os.path.join(newpath, 'files', obj.uid+key)
+            print attach_path
             with open(attach_path, 'w') as stream:
                 stream.write(str(attachments[key]))
-            index.add('files/'+key)
+            index.add('files/'+obj.uid+key)
 
     # Write down what changed
     with open(file_path, 'w') as stream:
