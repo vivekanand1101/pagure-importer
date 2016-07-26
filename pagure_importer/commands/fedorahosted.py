@@ -1,5 +1,4 @@
 import click
-import os
 import getpass
 import pagure_importer
 from pagure_importer.app import app, REPO_PATH
@@ -24,8 +23,7 @@ def fedorahosted(project_url, tags):
     if repos:
         repo_index = raw_input('Choose the import destination repo (default 1) : ') or 1
         repo_name = repos[int(repo_index)-1]
-        trac_importer = importer_trac.TracImporter(rpc_url, fasclient)
-        trac_importer.import_issues(repo_name=repo_name, repo_folder=REPO_PATH,
-                                    tags=tags)
+        trac_importer = importer_trac.TracImporter(rpc_url, fasclient, tags)
+        trac_importer.import_issues(repo_name=repo_name, repo_folder=REPO_PATH)
     else:
         click.echo('No ticket repository found. Use pgimport clone command')

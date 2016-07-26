@@ -10,7 +10,7 @@ class Issue():
     def __init__(
             self, id, title, content,
             status, date_created, user, private, attachment, tags,
-            depends, blocks, assignee, comments=None):
+            depends, blocks, assignee, comments=[]):
 
         self.id = id
         self.title = title
@@ -61,13 +61,14 @@ class IssueComment():
 
     def __init__(
             self, id, comment, date_created,
-            user, parent=None, edited_on=None, editor=None):
+            user, attachment, parent=None, edited_on=None, editor=None):
 
         self.id = id
         self.comment = comment
         self.parent = parent
         self.date_created = date_created
         self.user = user
+        self.attachment = attachment
         self.edited_on = edited_on
         self.editor = editor
 
