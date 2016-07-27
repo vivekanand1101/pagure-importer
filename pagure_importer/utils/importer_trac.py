@@ -26,6 +26,11 @@ class TracImporter():
 
             # add all the comments to the issue object
             for key in comments:
+                if comments[key].attachment:
+                    project = repo_name.replace('.git', '')
+                    url = '/%s/issue/raw/files/%s' % \
+                        (project, pagure_issue.uid+comments[key].attachment)
+                    comments[key].comment += '\n[%s](%s)' % (comments[key].attachment, url)
                 pagure_issue.comments.append(comments[key].to_json())
 
             # update the local git repo
@@ -98,14 +103,14 @@ class TracImporter():
 
     def create_comments(self, trac_comments):
         comments = {}
-        attachments = {}
         for comment in trac_comments:
             ts = datetime.strptime(comment[0].value, "%Y%m%dT%H:%M:%S")
             if comment[2] == 'comment' and comment[4] != '':
                 if ts in comments:
-                    attachment = attachments[ts]
+                    attachment = comments[ts]
                 else:
                     attachment = []
+
                 pagure_issue_comment_body = comment[4]
                 pagure_issue_comment_created_at = ts
 
@@ -117,7 +122,7 @@ class TracImporter():
 
                 # Object to represent comment on an issue
                 pagure_issue_comment = IssueComment(
-                    id=ts,
+                    id=None,
                     comment=pagure_issue_comment_body,
                     date_created=pagure_issue_comment_created_at,
                     attachment=attachment,
@@ -129,6 +134,5 @@ class TracImporter():
                 if ts in comments:
                     comments[ts].attachment.append(comment[4])
                 else:
-                    attachments[ts] = comment[4]
-
+                    comments[ts] = comment[4]
         return comments

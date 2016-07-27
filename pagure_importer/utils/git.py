@@ -47,7 +47,6 @@ def update_git(obj, repo_path, repo_folder):
 
         for key in attachments.keys():
             attach_path = os.path.join(newpath, 'files', obj.uid+key)
-            print attach_path
             with open(attach_path, 'w') as stream:
                 stream.write(str(attachments[key]))
             index.add('files/'+obj.uid+key)
