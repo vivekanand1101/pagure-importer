@@ -98,11 +98,21 @@ class TracImporter():
             ticket_status = 'Fixed'
         return ticket_status
 
+    def get_comment_user(self, comment):
+        # The User who commented
+        if self.fas:
+            pagure_issue_comment_user = self.fas.find_fas_user(comment[1])
+        else:
+            pagure_issue_comment_user = User(name='', fullname='', emails=[])
+        return pagure_issue_comment_user
+
     def create_comments(self, trac_comments):
         comments = {}
         for comment in trac_comments:
             ts = datetime.strptime(comment[0].value, "%Y%m%dT%H:%M:%S")
+            
             if comment[2] == 'comment' and comment[4] != '':
+                print 'comment'
                 if ts in comments:
                     attachment = comments[ts]
                 else:
@@ -111,12 +121,7 @@ class TracImporter():
                 pagure_issue_comment_body = comment[4]
                 pagure_issue_comment_created_at = ts
 
-                # The User who commented
-                if self.fas:
-                    pagure_issue_comment_user = self.fas.find_fas_user(comment[1])
-                else:
-                    pagure_issue_comment_user = User(name='', fullname='', emails=[])
-
+                pagure_issue_comment_user = self.get_comment_user(comment)
                 # Object to represent comment on an issue
                 pagure_issue_comment = IssueComment(
                     id=None,
@@ -128,8 +133,16 @@ class TracImporter():
                 comments[ts] = pagure_issue_comment
 
             elif comment[2] == 'attachment':
+                print 'attachment'
                 if ts in comments:
                     comments[ts].attachment.append(comment[4])
                 else:
-                    comments[ts] = comment[4]
+                    pagure_issue_comment_user = self.get_comment_user(comment)
+                    comments[ts] = IssueComment(
+                        id=None,
+                        comment='attachment',
+                        date_created=ts,
+                        attachment=comment[4],
+                        user=pagure_issue_comment_user.to_json())
+
         return comments
