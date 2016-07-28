@@ -110,9 +110,8 @@ class TracImporter():
         comments = {}
         for comment in trac_comments:
             ts = datetime.strptime(comment[0].value, "%Y%m%dT%H:%M:%S")
-            
+
             if comment[2] == 'comment' and comment[4] != '':
-                print 'comment'
                 if ts in comments:
                     attachment = comments[ts]
                 else:
@@ -133,7 +132,6 @@ class TracImporter():
                 comments[ts] = pagure_issue_comment
 
             elif comment[2] == 'attachment':
-                print 'attachment'
                 if ts in comments:
                     comments[ts].attachment.append(comment[4])
                 else:
