@@ -18,12 +18,10 @@ class TracImporter():
         tickets_id = self.trac.ticket.query(trac_query)
 
         for ticket_id in tickets_id:
-
             pagure_issue = self.create_issue(ticket_id)
-
+            pagure_issue.comments = []
             pagure_issue_comments = self.trac.ticket.changeLog(ticket_id)
             comments = self.create_comments(pagure_issue_comments)
-
             # add all the comments to the issue object
             for key in comments:
                 if comments[key].attachment:
@@ -32,11 +30,10 @@ class TracImporter():
                         (project, pagure_issue.uid+comments[key].attachment)
                     comments[key].comment += '\n[%s](%s)' % (comments[key].attachment, url)
                 pagure_issue.comments.append(comments[key].to_json())
-
             # update the local git repo
-            print 'Update ' + repo_name + ' with issue :' + str(ticket_id) +\
-                '/' + str(tickets_id[-1])
             update_git(pagure_issue, repo_name, repo_folder)
+            print 'Updated ' + repo_name + ' with issue :' + str(ticket_id) +\
+                '/' + str(tickets_id[-1])
 
     def create_issue(self, ticket_id):
 
