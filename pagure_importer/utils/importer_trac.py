@@ -11,6 +11,7 @@ class TracImporter():
         self.trac = ServerProxy(trac_project_url)
         self.fas = fasclient
         self.tags = tags
+        self.somebody = User(name='somebody', fullname='somebody', emails=['some@body.com'])
 
     def import_issues(self, repo_name, repo_folder,
                       trac_query='max=0&order=id'):
@@ -102,8 +103,10 @@ class TracImporter():
         # The User who commented
         if self.fas:
             pagure_issue_comment_user = self.fas.find_fas_user(comment[1])
+            if not pagure_issue_comment_user.name:
+                pagure_issue_comment_user = self.somebody
         else:
-            pagure_issue_comment_user = User(name='', fullname='', emails=[])
+            pagure_issue_comment_user = self.somebody
         return pagure_issue_comment_user
 
     def create_comments(self, trac_comments):
