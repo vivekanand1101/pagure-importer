@@ -10,7 +10,7 @@ class Issue():
     def __init__(
             self, id, title, content,
             status, date_created, user, private, attachment, tags,
-            depends, blocks, assignee, comments=[]):
+            depends, blocks, assignee, comments=None):
 
         self.id = id
         self.title = title

@@ -1,6 +1,6 @@
 from xmlrpclib import ServerProxy
 from datetime import datetime
-from pagure_importer.utils.git import update_git
+from pagure_importer.utils.git import update_git, get_secure_filename
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
@@ -26,10 +26,11 @@ class TracImporter():
             # add all the comments to the issue object
             for key in comments:
                 if comments[key].attachment:
+                    attach_name = comments[key].attachment
                     project = repo_name.replace('.git', '')
-                    url = '/%s/issue/raw/files/%s' % \
-                        (project, pagure_issue.uid+comments[key].attachment)
-                    comments[key].comment += '\n[%s](%s)' % (comments[key].attachment, url)
+                    filename = get_secure_filename(pagure_issue.attachment[attach_name], attach_name)
+                    url = '/%s/issue/raw/files/%s' % (project, filename)
+                    comments[key].comment += '\n[%s](%s)' % (attach_name, url)
                 pagure_issue.comments.append(comments[key].to_json())
             # update the local git repo
             update_git(pagure_issue, repo_name, repo_folder)
@@ -116,7 +117,7 @@ class TracImporter():
 
             if comment[2] == 'comment' and comment[4] != '':
                 if ts in comments:
-                    attachment = comments[ts]
+                    attachment = comments[ts].attachment
                 else:
                     attachment = []
 
@@ -125,14 +126,12 @@ class TracImporter():
 
                 pagure_issue_comment_user = self.get_comment_user(comment)
                 # Object to represent comment on an issue
-                pagure_issue_comment = IssueComment(
+                comments[ts] = IssueComment(
                     id=None,
                     comment=pagure_issue_comment_body,
                     date_created=pagure_issue_comment_created_at,
                     attachment=attachment,
                     user=pagure_issue_comment_user.to_json())
-
-                comments[ts] = pagure_issue_comment
 
             elif comment[2] == 'attachment':
                 if ts in comments:

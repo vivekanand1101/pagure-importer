@@ -8,8 +8,16 @@ import os
 import pygit2
 import tempfile
 import json
+import hashlib
+import werkzeug
 
 from repo import *
+
+
+def get_secure_filename(attachment, filename):
+    filename = '%s-%s' % (hashlib.sha256(str(attachment)).hexdigest(),
+        werkzeug.secure_filename(str(filename)))
+    return filename
 
 
 def update_git(obj, repo_path, repo_folder):
@@ -46,10 +54,11 @@ def update_git(obj, repo_path, repo_folder):
             os.mkdir(os.path.join(newpath, 'files'))
 
         for key in attachments.keys():
-            attach_path = os.path.join(newpath, 'files', obj.uid+key)
+            filename = get_secure_filename(attachments[key], key)
+            attach_path = os.path.join(newpath, 'files', filename)
             with open(attach_path, 'w') as stream:
                 stream.write(str(attachments[key]))
-            index.add('files/'+obj.uid+key)
+            index.add('files/'+filename)
 
     # Write down what changed
     with open(file_path, 'w') as stream:
