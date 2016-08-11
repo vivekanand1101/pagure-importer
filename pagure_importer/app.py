@@ -13,10 +13,10 @@ __all__ = [
     'app',
 ]
 
-from .commands import fedorahosted
-from .commands import github
-from .commands import clone
-from .commands import push
+import pagure_importer.commands.fedorahosted
+import pagure_importer.commands.github
+import pagure_importer.commands.clone
+import pagure_importer.commands.push
 
 if __name__ == '__main__':
     app()
