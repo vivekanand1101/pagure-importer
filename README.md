@@ -24,7 +24,7 @@ CLI tool for importing issues etc. from different sources like github to pagure
 
 * Run the application
 
-    python pagure_importer/app.py
+    PYTHONPATH=. python pagure_importer/app.py
 
 
 ## Usage
