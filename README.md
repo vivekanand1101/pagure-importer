@@ -3,7 +3,8 @@ CLI tool for importing issues etc. from different sources like github to pagure
 
 ## Installation
 ---
-1. Install it using ```pip``` . ```pip install pagure_importer```
+*  Install it using ```pip``` . ```pip install pagure_importer```
+
 
 ## How to run
 ---
@@ -12,6 +13,18 @@ CLI tool for importing issues etc. from different sources like github to pagure
 2. Execute ```pgimport```. See Usage section
 3. Just answer what is asked. Check below instructions for particular source
 4. The script will make commits in your cloned repo: push the changes back to pagure. Use : ```pgimport push foobar.git```
+
+
+## Run from git
+---
+
+* Install the dependencies:
+
+    sudo dnf install python-github python-pygit2 python-fedora python-click
+
+* Run the application
+
+    python pagure_importer/app.py
 
 
 ## Usage
@@ -62,6 +75,8 @@ The push command can be used to push a clone pagure ticket repo back to pagure.
 1. [PyGithub](https://github.com/PyGithub/PyGithub) - a python library for [github](https://github.com/) api.
 2. [click](https://github.com/pallets/click) - Python package for creating beautiful command line interfaces
 3. [python-fedora](https://fedorahosted.org/python-fedora/) - A collection of python code that allows programs to talk to Fedora Services
+4. [pygit2](http://pygit2.org/) - A Python bindings to the libgit2 to interact
+   with git from python.
 
 
 ## How it works: Github Issues
