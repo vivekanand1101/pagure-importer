@@ -20,7 +20,7 @@ CLI tool for importing issues etc. from different sources like github to pagure
 
 * Install the dependencies:
 
-    sudo dnf install python-github python-pygit2 python-fedora python-click
+    sudo dnf install python-github python-pygit2 python-fedora python-click python-werkzeug
 
 * Run the application
 
