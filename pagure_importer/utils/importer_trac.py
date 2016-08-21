@@ -1,4 +1,4 @@
-from xmlrpclib import ServerProxy
+import requests
 from datetime import datetime
 from pagure_importer.utils.git import update_git, get_secure_filename
 from pagure_importer.utils.models import User, Issue, IssueComment
@@ -7,16 +7,35 @@ from pagure_importer.utils.models import User, Issue, IssueComment
 class TracImporter():
     '''Pagure importer for trac instance'''
 
-    def __init__(self, trac_project_url, fasclient=None, tags=False):
-        self.trac = ServerProxy(trac_project_url)
+    def __init__(self, project_url, username, password, fasclient=None, tags=False):
+        self.url = project_url
+        self.username = username
+        self.password = password
         self.fas = fasclient
         self.tags = tags
         self.somebody = User(name='somebody', fullname='somebody', emails=['some@body.com'])
+        self.reqid = 0
+
+    def request(self, method, *args):
+        self.reqid += 1
+        req = {'params': args,
+               'method': method,
+               'id': self.reqid}
+        resp = requests.post(self.url, json=req, auth=(self.username, self.password))
+        resp = resp.json()
+        if resp['id'] != self.reqid:
+            print('ERROR: Invalid response for request! ID does not match')
+            sys.exit(1)
+        if resp['error'] != None:
+            print("ERROR: Error in response: %s" % resp['error'])
+            sys.exit(1)
+
+        return resp['result']
 
     def import_issues(self, repo_name, repo_folder,
                       trac_query='max=0&order=id'):
         '''Import issues from trac instance using xmlrpc API'''
-        tickets_id = self.trac.ticket.query(trac_query)
+        tickets_id = self.request('ticket.query', trac_query)
 
         for ticket_id in tickets_id:
             pagure_issue = self.create_issue(ticket_id)
@@ -39,13 +58,13 @@ class TracImporter():
 
     def create_issue(self, ticket_id):
 
-        trac_ticket = self.trac.ticket.get(ticket_id)[3]
-        trac_attachments = self.trac.ticket.listAttachments(ticket_id)
+        trac_ticket = self.request('ticket.get', ticket_id)[3]
+        trac_attachments = self.request('ticket.listAttachments', ticket_id)
 
         pagure_attachment = {}
         for attachment in trac_attachments:
             filename = attachment[0]
-            content = self.trac.ticket.getAttachment(ticket_id, filename)
+            content = self.request('ticket.getAttachment', ticket_id, filename)
             pagure_attachment[filename] = content
 
         pagure_issue_title = trac_ticket['summary']
