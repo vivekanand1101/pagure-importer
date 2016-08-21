@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import datetime
 import json
 import uuid
 
@@ -36,7 +35,7 @@ class Issue():
             'title': self.title,
             'content': self.content,
             'status': self.status,
-            'date_created': self.date_created.strftime('%s'),
+            'date_created': self.date_created,
             'user': self.user,
             'private': self.private,
             'tags': self.tags,
@@ -79,9 +78,9 @@ class IssueComment():
             'id': self.id,
             'comment': self.comment,
             'parent': self.parent,
-            'date_created': self.date_created.strftime('%s'),
+            'date_created': self.date_created,
             'user': self.user,
-            'edited_on': self.edited_on.strftime('%s') if self.edited_on else None,
+            'edited_on': self.edited_on if self.edited_on else None,
             'editor': self.editor or None
         }
 

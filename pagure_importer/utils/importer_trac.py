@@ -1,4 +1,5 @@
 import requests
+import time
 from datetime import datetime
 from pagure_importer.utils.git import update_git, get_secure_filename
 from pagure_importer.utils.models import User, Issue, IssueComment
@@ -32,6 +33,12 @@ class TracImporter():
 
         return resp['result']
 
+    def to_timestamp(self, tm):
+        tm = tm.replace('+00:00', '')
+        date = datetime.strptime(tm, '%Y-%m-%dT%H:%M:%S')
+        ts = str(time.mktime(date.timetuple()))[:-2]  # Strip the .0
+        return ts
+
     def import_issues(self, repo_name, repo_folder,
                       trac_query='max=0&order=id'):
         '''Import issues from trac instance using xmlrpc API'''
@@ -40,7 +47,7 @@ class TracImporter():
         for ticket_id in tickets_id:
             pagure_issue = self.create_issue(ticket_id)
             pagure_issue.comments = []
-            pagure_issue_comments = self.trac.ticket.changeLog(ticket_id)
+            pagure_issue_comments = self.request('ticket.changeLog', ticket_id)
             comments = self.create_comments(pagure_issue_comments)
             # add all the comments to the issue object
             for key in comments:
@@ -75,8 +82,7 @@ class TracImporter():
 
         pagure_issue_status = self.get_ticket_status(trac_ticket)
 
-        pagure_issue_created_at = datetime.strptime(
-            self.trac.ticket.get(ticket_id)[1].value, "%Y%m%dT%H:%M:%S")
+        pagure_issue_created_at = self.to_timestamp(self.request('ticket.get', ticket_id)[1]['__jsonclass__'][1])
 
         if self.fas:
             pagure_issue_assignee = self.fas.find_fas_user(trac_ticket['owner'])
@@ -132,7 +138,7 @@ class TracImporter():
     def create_comments(self, trac_comments):
         comments = {}
         for comment in trac_comments:
-            ts = datetime.strptime(comment[0].value, "%Y%m%dT%H:%M:%S")
+            ts = self.to_timestamp(comment[0]['__jsonclass__'][1])
 
             if comment[2] == 'comment' and comment[4] != '':
                 if ts in comments:
