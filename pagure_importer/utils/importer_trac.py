@@ -1,5 +1,6 @@
 import requests
 import time
+import base64
 from datetime import datetime
 from pagure_importer.utils.git import update_git, get_secure_filename
 from pagure_importer.utils.models import User, Issue, IssueComment
@@ -65,14 +66,15 @@ class TracImporter():
 
     def create_issue(self, ticket_id):
 
-        trac_ticket = self.request('ticket.get', ticket_id)[3]
+        trac_ticket_info =  self.request('ticket.get', ticket_id)
+        trac_ticket = trac_ticket_info[3]        
         trac_attachments = self.request('ticket.listAttachments', ticket_id)
 
         pagure_attachment = {}
         for attachment in trac_attachments:
             filename = attachment[0]
-            content = self.request('ticket.getAttachment', ticket_id, filename)
-            pagure_attachment[filename] = content
+            content = self.request('ticket.getAttachment', ticket_id, filename)['__jsonclass__'][1].replace('\n', '')
+            pagure_attachment[filename] = base64.b64decode(content)
 
         pagure_issue_title = trac_ticket['summary']
 
@@ -82,7 +84,7 @@ class TracImporter():
 
         pagure_issue_status = self.get_ticket_status(trac_ticket)
 
-        pagure_issue_created_at = self.to_timestamp(self.request('ticket.get', ticket_id)[1]['__jsonclass__'][1])
+        pagure_issue_created_at = self.to_timestamp(trac_ticket_info[1]['__jsonclass__'][1])
 
         if self.fas:
             pagure_issue_assignee = self.fas.find_fas_user(trac_ticket['owner'])
