@@ -129,7 +129,7 @@ class TracImporter():
 
     def get_comment_user(self, comment):
         # The User who commented
-        if self.fas:
+        if self.fas and comment[1]:
             pagure_issue_comment_user = self.fas.find_fas_user(comment[1])
             if not pagure_issue_comment_user.name:
                 pagure_issue_comment_user = self.somebody
