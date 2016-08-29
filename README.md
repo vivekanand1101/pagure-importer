@@ -1,10 +1,9 @@
 # pagure-importer
 CLI tool for importing issues etc. from different sources like github to pagure
 
-## Installation
+## Installation in a Virtual Environment
 ---
 *  Install it using ```pip``` . ```pip install pagure_importer```
-
 
 ## How to run
 ---
@@ -13,18 +12,6 @@ CLI tool for importing issues etc. from different sources like github to pagure
 2. Execute ```pgimport```. See Usage section
 3. Just answer what is asked. Check below instructions for particular source
 4. The script will make commits in your cloned repo: push the changes back to pagure. Use : ```pgimport push foobar.git```
-
-
-## Run from git
----
-
-* Install the dependencies:
-
-    sudo dnf install python-github python-pygit2 python-fedora python-click python-werkzeug
-
-* Run the application
-
-    PYTHONPATH=. python pagure_importer/app.py
 
 
 ## Usage
