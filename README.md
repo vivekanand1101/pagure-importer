@@ -8,7 +8,7 @@ CLI tool for importing issues etc. from different sources like github to pagure
 ## How to run
 ---
 0. Clone the issue tracker for issues from pagure. Use: ```pgimport clone  ssh://git@pagure.io/tickets/foobar.git```
-1. Activate the pagure tickets hook from project settings.
+1. Activate the pagure tickets hook from project settings. This is necessary step to also get pagure database updated for tickets repository changes.
 2. Execute ```pgimport```. See Usage section
 3. Just answer what is asked. Check below instructions for particular source
 4. The script will make commits in your cloned repo: push the changes back to pagure. Use : ```pgimport push foobar.git```
@@ -30,12 +30,16 @@ CLI tool for importing issues etc. from different sources like github to pagure
       github
       push
 
-The clone command can be used to clone the pagure ticket repository:
+
+### Migrate fedorahosted trac tickets to pagure
+---
+1) The clone command can be used to clone the newly created pagure ticket repository:
 
     $ pgimport clone ssh://git@pagure.io/tickets/foobar.git
 
+   This will clone the pagure foobar repository into the default set /tmp directory as /tmp/foobar.git
 
-The fedorahosted command can be used to import issues from a fedorahosted project to pagure
+2) The fedorahosted command can be used to import issues from a fedorahosted project to pagure
     
     $ pgimport fedorahosted --help
         Usage: pgimport fedorahosted [OPTIONS] PROJECT_URL
@@ -47,12 +51,28 @@ The fedorahosted command can be used to import issues from a fedorahosted projec
 
     $ pgimport fedorahosted https://fedorahosted.org/foobar
 
+   This command will import all the tickets information to /tmp/foobar.git repository
 
-The github command can be used to import issues from a github project to pagure
+3) The push command can be used to push a clone pagure ticket repo back to pagure.
+
+    $ pgimport push foobar.git
+
+
+### Migrate github issues to pagure
+---
+1)  The clone command can be used to clone the newly created pagure ticket repository:
+
+     $ pgimport clone ssh://git@pagure.io/tickets/foobar.git
+
+    This will clone the pagure foobar repository into the default set /tmp directory as /tmp/foobar.git
+
+2) The github command can be used to import issues from a github project to pagure
 
     $ pgimport github
 
-The push command can be used to push a clone pagure ticket repo back to pagure.
+   This will ask few questions, just answer them and issues will be imported to /tmp/foobar.git repository.
+
+3) The push command can be used to push a clone pagure ticket repo back to pagure.
 
     $ pgimport push foobar.git
 
