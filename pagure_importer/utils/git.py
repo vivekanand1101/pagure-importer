@@ -6,7 +6,6 @@
 import shutil
 import os
 import pygit2
-import tempfile
 import json
 import hashlib
 import werkzeug
@@ -16,27 +15,43 @@ from repo import *
 
 def get_secure_filename(attachment, filename):
     filename = '%s-%s' % (hashlib.sha256(str(attachment)).hexdigest(),
-        werkzeug.secure_filename(str(filename)))
+                          werkzeug.secure_filename(str(filename)))
     return filename
 
 
-def update_git(obj, repo_path, repo_folder):
-    """ Update the given issue in its git.
-    This method forks the provided repo, add/edit the issue whose file name
-    is defined by the uid field of the issue and if there are additions/
-    changes commit them and push them back to the original repo.
-    """
+def clone_repo(repo_name, repo_folder):
 
     if not repo_folder:
         return
 
     # Get the fork
-    repopath = os.path.join(repo_folder, repo_path)
+    repopath = os.path.join(repo_folder, repo_name)
 
     # Clone the repo into a temp folder
-    newpath = tempfile.mkdtemp(prefix='pagure-')
+    newpath = os.path.join(repo_folder, 'clone-' + repo_name)
     new_repo = pygit2.clone_repository(repopath, newpath)
+    return (newpath, new_repo)
 
+
+def push_delete_repo(newpath, new_repo):
+
+    # Push to origin
+    ori_remote = new_repo.remotes[0]
+    master_ref = new_repo.lookup_reference('HEAD').resolve()
+    refname = '%s:%s' % (master_ref.name, master_ref.name)
+
+    PagureRepo.push(ori_remote, refname)
+
+    # Remove the clone
+    shutil.rmtree(newpath)
+
+
+def update_git(obj, newpath, new_repo):
+    """ Update the given issue in its git.
+    This method forks the provided repo, add/edit the issue whose file name
+    is defined by the uid field of the issue and if there are additions/
+    changes commit them and push them back to the original repo.
+    """
     file_path = os.path.join(newpath, obj.uid)
 
     # Get the current index
@@ -110,12 +125,4 @@ def update_git(obj, repo_path, repo_folder):
         parents)
     index.write()
 
-    # Push to origin
-    ori_remote = new_repo.remotes[0]
-    master_ref = new_repo.lookup_reference('HEAD').resolve()
-    refname = '%s:%s' % (master_ref.name, master_ref.name)
-
-    PagureRepo.push(ori_remote, refname)
-
-    # Remove the clone
-    shutil.rmtree(newpath)
+    return new_repo

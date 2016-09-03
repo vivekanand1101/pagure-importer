@@ -2,7 +2,7 @@ import requests
 import time
 import base64
 from datetime import datetime
-from pagure_importer.utils.git import update_git, get_secure_filename
+from pagure_importer.utils.git import *
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
@@ -43,6 +43,7 @@ class TracImporter():
     def import_issues(self, repo_name, repo_folder,
                       trac_query='max=0&order=id'):
         '''Import issues from trac instance using xmlrpc API'''
+        newpath, new_repo = clone_repo(repo_name, repo_folder)
         tickets_id = self.request('ticket.query', trac_query)
 
         for ticket_id in tickets_id:
@@ -60,9 +61,10 @@ class TracImporter():
                     comments[key].comment += '\n[%s](%s)' % (attach_name, url)
                 pagure_issue.comments.append(comments[key].to_json())
             # update the local git repo
-            update_git(pagure_issue, repo_name, repo_folder)
+            new_repo = update_git(pagure_issue, newpath, new_repo)
             print 'Updated ' + repo_name + ' with issue :' + str(ticket_id) +\
                 '/' + str(tickets_id[-1])
+        push_delete_repo(newpath, new_repo)
 
     def create_issue(self, ticket_id):
 
