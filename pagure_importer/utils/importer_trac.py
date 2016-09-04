@@ -68,8 +68,8 @@ class TracImporter():
 
     def create_issue(self, ticket_id):
 
-        trac_ticket_info =  self.request('ticket.get', ticket_id)
-        trac_ticket = trac_ticket_info[3]        
+        trac_ticket_info = self.request('ticket.get', ticket_id)
+        trac_ticket = trac_ticket_info[3]
         trac_attachments = self.request('ticket.listAttachments', ticket_id)
 
         pagure_attachment = {}
@@ -91,9 +91,15 @@ class TracImporter():
         if self.fas:
             pagure_issue_assignee = self.fas.find_fas_user(trac_ticket['owner'])
             pagure_issue_user = self.fas.find_fas_user(trac_ticket['reporter'])
+            if not pagure_issue_user.name:
+                pagure_issue_user = User(name=trac_ticket['reporter'],
+                                         fullname=trac_ticket['reporter'],
+                                         emails=[trac_ticket['reporter']+'@fedoraproject.org'])
         else:
             pagure_issue_assignee = User(name='', fullname='', emails=[])
-            pagure_issue_user = User(name='', fullname='', emails=[])
+            pagure_issue_user = User(name=trac_ticket['reporter'],
+                                     fullname=trac_ticket['reporter'],
+                                     emails=[trac_ticket['reporter']+'@fedoraproject.org'])
 
         pagure_issue_tags = []
         if self.tags:
