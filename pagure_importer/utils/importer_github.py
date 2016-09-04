@@ -37,7 +37,7 @@ class GithubImporter():
         except:
             raise GithubRepoNotFound(
                     'Repo not found, project name wrong')
-
+        newpath, new_repo = clone_repo(repo_path, repo_folder)
         for github_issue in repo.get_issues(state=status):
 
             # title of the issue
@@ -135,4 +135,5 @@ class GithubImporter():
             pagure_issue.comments = comments
 
             # update the local git repo
-            update_git(pagure_issue, repo_path, repo_folder)
+            new_repo = update_git(pagure_issue, newpath, new_repo)
+        push_delete_repo(newpath, new_repo)
