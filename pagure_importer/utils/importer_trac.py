@@ -1,21 +1,25 @@
 import requests
 import time
 import base64
+import sys
 from datetime import datetime
-from pagure_importer.utils.git import *
+from pagure_importer.utils.git import (
+    clone_repo, get_secure_filename, push_delete_repo, update_git)
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
 class TracImporter():
     '''Pagure importer for trac instance'''
 
-    def __init__(self, project_url, username, password, fasclient=None, tags=False):
+    def __init__(self, project_url, username, password,
+                 fasclient=None, tags=False):
         self.url = project_url
         self.username = username
         self.password = password
         self.fas = fasclient
         self.tags = tags
-        self.somebody = User(name='somebody', fullname='somebody', emails=['some@body.com'])
+        self.somebody = User(name='somebody', fullname='somebody',
+                             emails=['some@body.com'])
         self.reqid = 0
 
     def request(self, method, *args):
@@ -23,7 +27,8 @@ class TracImporter():
         req = {'params': args,
                'method': method,
                'id': self.reqid}
-        resp = requests.post(self.url, json=req, auth=(self.username, self.password))
+        resp = requests.post(self.url, json=req,
+                             auth=(self.username, self.password))
         resp = resp.json()
         if resp['id'] != self.reqid:
             print('ERROR: Invalid response for request! ID does not match')
@@ -56,7 +61,8 @@ class TracImporter():
                 if comments[key].attachment:
                     attach_name = comments[key].attachment
                     project = repo_name.replace('.git', '')
-                    filename = get_secure_filename(pagure_issue.attachment[attach_name], attach_name)
+                    filename = get_secure_filename(
+                        pagure_issue.attachment[attach_name], attach_name)
                     url = '/%s/issue/raw/files/%s' % (project, filename)
                     comments[key].comment += '\n[%s](%s)' % (attach_name, url)
                 pagure_issue.comments.append(comments[key].to_json())
@@ -89,21 +95,25 @@ class TracImporter():
         pagure_issue_created_at = self.to_timestamp(trac_ticket_info[1]['__jsonclass__'][1])
 
         if self.fas:
-            pagure_issue_assignee = self.fas.find_fas_user(trac_ticket['owner'])
+            pagure_issue_assignee = self.fas.find_fas_user(
+                trac_ticket['owner'])
             pagure_issue_user = self.fas.find_fas_user(trac_ticket['reporter'])
             if not pagure_issue_user.name:
-                pagure_issue_user = User(name=trac_ticket['reporter'],
-                                         fullname=trac_ticket['reporter'],
-                                         emails=[trac_ticket['reporter']+'@fedoraproject.org'])
+                pagure_issue_user = User(
+                    name=trac_ticket['reporter'],
+                    fullname=trac_ticket['reporter'],
+                    emails=[trac_ticket['reporter']+'@fedoraproject.org'])
         else:
             pagure_issue_assignee = User(name='', fullname='', emails=[])
-            pagure_issue_user = User(name=trac_ticket['reporter'],
-                                     fullname=trac_ticket['reporter'],
-                                     emails=[trac_ticket['reporter']+'@fedoraproject.org'])
+            pagure_issue_user = User(
+                name=trac_ticket['reporter'],
+                fullname=trac_ticket['reporter'],
+                emails=[trac_ticket['reporter']+'@fedoraproject.org'])
 
         pagure_issue_tags = []
         if self.tags:
-            pagure_issue_tags = filter(lambda x: x != '', trac_ticket['keywords'].split(' '))
+            pagure_issue_tags = filter(
+                lambda x: x != '', trac_ticket['keywords'].split(' '))
 
             if trac_ticket['milestone'] != '':
                 pagure_issue_tags.append(str(trac_ticket['milestone']))
