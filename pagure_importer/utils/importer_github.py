@@ -2,7 +2,8 @@ from github import Github
 
 from pagure_importer.utils import models
 from pagure_importer.utils import github_get_commentor_email
-from pagure_importer.utils.git import update_git
+from pagure_importer.utils.git import (
+    clone_repo, push_delete_repo, update_git)
 from pagure_importer.utils.exceptions import (
     GithubBadCredentials,
     GithubRepoNotFound
@@ -37,7 +38,7 @@ class GithubImporter():
         except:
             raise GithubRepoNotFound(
                     'Repo not found, project name wrong')
-
+        newpath, new_repo = clone_repo(repo_path, repo_folder)
         for github_issue in repo.get_issues(state=status):
 
             # title of the issue
@@ -65,12 +66,10 @@ class GithubImporter():
             else:
                 pagure_issue_tags = []
 
-
             # few things not supported by github
             pagure_issue_depends = []
             pagure_issue_blocks = []
             pagure_issue_is_private = False
-
 
             # User who created the issue
             pagure_issue_user = models.User(
@@ -78,20 +77,18 @@ class GithubImporter():
                     fullname=github_issue.user.name,
                     emails=[github_issue.user.email])
 
-
             pagure_issue = models.Issue(
                     id=None,
-                    title = pagure_issue_title,
-                    content = pagure_issue_content,
-                    status = pagure_issue_status,
-                    date_created = pagure_issue_created_at,
-                    user = pagure_issue_user.to_json(),
-                    private = pagure_issue_is_private,
-                    tags = pagure_issue_tags,
-                    depends = pagure_issue_depends,
-                    blocks = pagure_issue_blocks,
-                    assignee = pagure_issue_assignee)
-
+                    title=pagure_issue_title,
+                    content=pagure_issue_content,
+                    status=pagure_issue_status,
+                    date_created=pagure_issue_created_at,
+                    user=pagure_issue_user.to_json(),
+                    private=pagure_issue_is_private,
+                    tags=pagure_issue_tags,
+                    depends=pagure_issue_depends,
+                    blocks=pagure_issue_blocks,
+                    assignee=pagure_issue_assignee)
 
             # comments on the issue
             comments = []
@@ -102,7 +99,6 @@ class GithubImporter():
                 pagure_issue_comment_body = comment.body
                 pagure_issue_comment_created_at = comment.created_at
                 pagure_issue_comment_updated_at = comment.updated_at
-
 
                 # No idea what to do with this right now
                 # editor: not supported by github api
@@ -135,4 +131,5 @@ class GithubImporter():
             pagure_issue.comments = comments
 
             # update the local git repo
-            update_git(pagure_issue, repo_path, repo_folder)
+            new_repo = update_git(pagure_issue, newpath, new_repo)
+        push_delete_repo(newpath, new_repo)
