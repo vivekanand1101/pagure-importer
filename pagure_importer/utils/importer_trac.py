@@ -118,6 +118,9 @@ class TracImporter():
             if trac_ticket['milestone'] != '':
                 pagure_issue_tags.append(str(trac_ticket['milestone']))
 
+        # Remove ',' between the tags and convert all tags to lower case
+        pagure_issue_tags = list(set([j for k in [i.lower().split(',')
+            for i in pagure_issue_tags] for j in k]))
         pagure_issue_depends = []
         pagure_issue_blocks = []
         pagure_issue_is_private = False
