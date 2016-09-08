@@ -40,18 +40,18 @@ CLI tool for importing issues etc. from different sources like github to pagure
    This will clone the pagure foobar repository into the default set /tmp directory as /tmp/foobar.git
 
 2) The fedorahosted command can be used to import issues from a fedorahosted project to pagure
-    
+
     $ pgimport fedorahosted --help
         Usage: pgimport fedorahosted [OPTIONS] PROJECT_URL
 
         Options:
-        --tags  Import pagure tags:
+        --tags  Import pagure tags as well.
         --help  Show this message and exit.
 
 
-    $ pgimport fedorahosted https://fedorahosted.org/foobar
+    $ pgimport fedorahosted https://fedorahosted.org/foobar --tags
 
-   This command will import all the tickets information to /tmp/foobar.git repository
+   This command will import all the tickets information with all tags to /tmp/foobar.git repository
 
 3) The push command can be used to push a clone pagure ticket repo back to pagure.
 
