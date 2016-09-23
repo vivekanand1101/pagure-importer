@@ -12,12 +12,13 @@ class TracImporter():
     '''Pagure importer for trac instance'''
 
     def __init__(self, project_url, username, password,
-                 fasclient=None, tags=False):
+                 fasclient=None, tags=False, private=False):
         self.url = project_url
         self.username = username
         self.password = password
         self.fas = fasclient
         self.tags = tags
+        self.private = private
         self.somebody = User(name='somebody', fullname='somebody',
                              emails=['some@body.com'])
         self.reqid = 0
@@ -121,9 +122,13 @@ class TracImporter():
         # Remove ',' between the tags and convert all tags to lower case
         pagure_issue_tags = list(set([j for k in [i.lower().split(',')
             for i in pagure_issue_tags] for j in k]))
+
         pagure_issue_depends = []
         pagure_issue_blocks = []
-        pagure_issue_is_private = False
+        if self.private:
+            pagure_issue_is_private = True
+        else:
+            pagure_issue_is_private = False
 
         pagure_issue = Issue(
             id=ticket_id,

@@ -9,7 +9,8 @@ from pagure_importer.utils.fas import FASclient
 @app.command()
 @click.argument('project_url')
 @click.option('--tags', help="Import pagure tags:", is_flag=True)
-def fedorahosted(project_url, tags):
+@click.option('--private', help="By default make all issues private", is_flag=True)
+def fedorahosted(project_url, tags, private):
     username = raw_input('Enter you FAS Username: ')
     password = getpass.getpass('Enter your FAS password: ')
     fasclient = FASclient(username, password,
@@ -20,7 +21,7 @@ def fedorahosted(project_url, tags):
         repo_index = raw_input('Choose the import destination repo (default 1) : ') or 1
         repo_name = repos[int(repo_index)-1]
         trac_importer = importer_trac.TracImporter(project_url, username,
-                                                   password, fasclient, tags)
+                                                   password, fasclient, tags, private)
         trac_importer.import_issues(repo_name=repo_name, repo_folder=REPO_PATH)
     else:
         click.echo('No ticket repository found. Use pgimport clone command')
