@@ -1,3 +1,6 @@
+import click
+import os
+import ConfigParser
 from github import Github
 from github.GithubException import TwoFactorException
 
@@ -18,21 +21,33 @@ class GithubImporter():
         self.github_project_name = project
         self.github = Github(username, password)
 
-        user = None
+        otp_auth = self.get_auth_token()
+        self.github = Github(otp_auth)
+
+    def get_auth_token(self):
+        cfg_path = os.path.join(os.environ.get('HOME'), '.pgimport')
+        if os.path.exists(cfg_path):
+            parser = ConfigParser.RawConfigParser()
+            parser.read(cfg_path)
+            otp_auth = parser.get('github', 'auth_token')
+        else:
+            otp_auth = self.create_auth_token()
+            otp_auth = otp_auth.token
+            with click.open_file(cfg_path, 'w+') as fp:
+                fp.write('[github] \nauth_token : %s' % otp_auth)
+        return otp_auth
+
+    def create_auth_token(self):
+        user = self.github.get_user()
         try:
-            user = self.github.get_user()
-            try:
-                otp_auth = user.create_authorization(scopes=['user'],
-                                                     note='otp_auth')
-            except TwoFactorException:
-                otp_key = raw_input("Enter github Two-Factor Auth key: ")
-                otp_auth = user.create_authorization(scopes=['user'],
-                                                     note='otp_auth',
-                                                     onetime_password=otp_key)
-            self.github = Github(otp_auth.token)
-        except:
-            raise GithubBadCredentials(
-                    'Given github credentials are not correct')
+            otp_auth = user.create_authorization(scopes=['user'],
+                                                 note='pgimport')
+        except TwoFactorException:
+            otp_key = click.prompt("Enter github Two-Factor Auth key: ")
+            otp_auth = user.create_authorization(scopes=['user'],
+                                                 note='pgimport',
+                                                 onetime_password=otp_key)
+        return otp_auth
 
     def import_issues(self, repo_path, repo_folder, status='all'):
         ''' Imports the issues on github for
