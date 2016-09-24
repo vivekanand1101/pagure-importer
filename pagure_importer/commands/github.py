@@ -31,19 +31,22 @@ def github(username, password, project):
             project)
         assemble_github_contributors_commentors()
     else:
-        github_importer = GithubImporter(
-            username=username,
-            password=password,
-            project=project)
-
         repos = pagure_importer.utils.display_repo()
         if repos:
             repo_index = click.prompt(
-                'Choose the import destination repo (default 1) : ', default=1)
+                'Choose the import destination repo', default=1)
             repo_name = repos[int(repo_index)-1]
+
+            github_importer = GithubImporter(
+                username=username,
+                password=password,
+                project=project)
+
             github_importer.import_issues(
                 repo_path=repo_name, repo_folder=REPO_PATH)
         else:
             click.echo(
                 'No ticket repository found. Use pgimport clone command')
+            return
+
     return
