@@ -1,7 +1,7 @@
 from github import Github
+from github.GithubException import TwoFactorException
 
-from pagure_importer.utils import models
-from pagure_importer.utils import github_get_commentor_email
+from pagure_importer.utils import models, github_get_commentor_email
 from pagure_importer.utils.git import (
     clone_repo, push_delete_repo, update_git)
 from pagure_importer.utils.exceptions import (
@@ -12,26 +12,32 @@ from pagure_importer.utils.exceptions import (
 
 class GithubImporter():
     ''' Imports from Github using PyGithub and libpagure '''
-    def __init__(
-            self,
-            github_username,
-            github_password,
-            github_project_name):
-        self.github_username = github_username
-        self.github_password = github_password
-        self.github_project_name = github_project_name
-        self.github = Github(github_username, github_password)
+    def __init__(self, username, password, project):
+        self.github_username = username
+        self.github_password = password
+        self.github_project_name = project
+        self.github = Github(username, password)
+
+        user = None
+        try:
+            user = self.github.get_user()
+            try:
+                otp_auth = user.create_authorization(scopes=['user'],
+                                                     note='otp_auth')
+            except TwoFactorException:
+                otp_key = raw_input("Enter github Two-Factor Auth key: ")
+                otp_auth = user.create_authorization(scopes=['user'],
+                                                     note='otp_auth',
+                                                     onetime_password=otp_key)
+            self.github = Github(otp_auth.token)
+        except:
+            raise GithubBadCredentials(
+                    'Given github credentials are not correct')
 
     def import_issues(self, repo_path, repo_folder, status='all'):
         ''' Imports the issues on github for
         the given project
         '''
-        github_user = None
-        try:
-            github_user = self.github.get_user(self.github_username)
-        except:
-            raise GithubBadCredentials(
-                    'Given github credentials are not correct')
         repo = self.github.get_repo(self.github_project_name)
         try:
             repo_name = repo.name

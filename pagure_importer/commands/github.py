@@ -13,15 +13,15 @@ from pagure_importer.utils import (
 @click.option('--username', prompt="Enter your Github Username: ")
 @click.option('--password', prompt=True, hide_input=True)
 @click.option('--project',
-              prompt='Enter github project name like: pypingou/pagure ')
+              prompt='Enter github project name like pypingou/pagure: ')
 def github(username, password, project):
     gen_json = raw_input(
-        'Do you want to generate jsons for project\'s contributers and issue commentors? (y/n): ')
+        "Do you want to generate jsons for project's contributers and issue commentors? (y/n): ")
     if gen_json == 'n':
         github_importer = GithubImporter(
-            github_username=username,
-            github_password=password,
-            github_project_name=project)
+            username=username,
+            password=password,
+            project=project)
 
         repos = pagure_importer.utils.display_repo()
         if repos:
@@ -33,12 +33,12 @@ def github(username, password, project):
 
     else:
         generate_json_for_github_contributors(
-            github_username,
-            github_password,
-            github_project_name)
+            username,
+            password,
+            project)
         generate_json_for_github_issue_commentors(
-            github_username,
-            github_password,
-            github_project_name)
+            username,
+            password,
+            project)
         assemble_github_contributors_commentors()
     return
