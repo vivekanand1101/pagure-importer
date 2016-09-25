@@ -10,7 +10,7 @@ from pagure_importer.utils.fas import FASclient
 @click.option('--tags', help="Import pagure tags:", is_flag=True)
 @click.option('--private', help="By default make all issues private",
               is_flag=True)
-@click.option('--username', prompt="Enter your FAS Username: ",
+@click.option('--username', prompt="Enter your FAS Username",
               help="FAS username")
 @click.option('--password', prompt=True, hide_input=True,
               help="FAS password")
