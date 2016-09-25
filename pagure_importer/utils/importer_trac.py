@@ -2,6 +2,7 @@ import requests
 import time
 import base64
 import sys
+import click
 from datetime import datetime
 from pagure_importer.utils.git import (
     clone_repo, get_secure_filename, push_delete_repo, update_git)
@@ -32,10 +33,10 @@ class TracImporter():
                              auth=(self.username, self.password))
         resp = resp.json()
         if resp['id'] != self.reqid:
-            print('ERROR: Invalid response for request! ID does not match')
+            click.echo('ERROR: Invalid response for request! ID does not match')
             sys.exit(1)
         if resp['error'] != None:
-            print("ERROR: Error in response: %s" % resp['error'])
+            click.echo("ERROR: Error in response: %s" % resp['error'])
             sys.exit(1)
 
         return resp['result']
@@ -69,8 +70,8 @@ class TracImporter():
                 pagure_issue.comments.append(comments[key].to_json())
             # update the local git repo
             new_repo = update_git(pagure_issue, newpath, new_repo)
-            print 'Updated ' + repo_name + ' with issue :' + str(ticket_id) +\
-                '/' + str(tickets_id[-1])
+            click.echo('Updated ' + repo_name + ' with issue :' +
+                       str(ticket_id) + '/' + str(tickets_id[-1]))
         push_delete_repo(newpath, new_repo)
 
     def create_issue(self, ticket_id):
