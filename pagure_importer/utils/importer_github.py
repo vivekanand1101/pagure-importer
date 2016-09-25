@@ -8,7 +8,6 @@ from pagure_importer.utils import models, github_get_commentor_email
 from pagure_importer.utils.git import (
     clone_repo, push_delete_repo, update_git)
 from pagure_importer.utils.exceptions import (
-    GithubBadCredentials,
     GithubRepoNotFound
 )
 
@@ -77,8 +76,7 @@ class GithubImporter():
             else:
                 pagure_issue_status = 'Fixed'
 
-            pagure_issue_created_at = github_issue.created_at
-
+            pagure_issue_created_at = github_issue.created_at.strftime('%s')
             # Not sure how to deal with this atm
             pagure_issue_assignee = None
 
@@ -106,6 +104,7 @@ class GithubImporter():
                     date_created=pagure_issue_created_at,
                     user=pagure_issue_user.to_json(),
                     private=pagure_issue_is_private,
+                    attachment=None,
                     tags=pagure_issue_tags,
                     depends=pagure_issue_depends,
                     blocks=pagure_issue_blocks,
@@ -118,8 +117,8 @@ class GithubImporter():
                 comment_user = comment.user
                 pagure_issue_comment_user_email = comment_user.email
                 pagure_issue_comment_body = comment.body
-                pagure_issue_comment_created_at = comment.created_at
-                pagure_issue_comment_updated_at = comment.updated_at
+                pagure_issue_comment_created_at = comment.created_at.strftime('%s')
+                pagure_issue_comment_updated_at = comment.updated_at.strftime('%s')
 
                 # No idea what to do with this right now
                 # editor: not supported by github api
