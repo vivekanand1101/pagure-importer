@@ -1,10 +1,7 @@
-import click
-import os
-import ConfigParser
 from github import Github
-from github.GithubException import TwoFactorException
 
-from pagure_importer.utils import models, github_get_commentor_email
+from pagure_importer.utils import (
+    models, github_get_commentor_email, get_auth_token)
 from pagure_importer.utils.git import (
     clone_repo, push_delete_repo, update_git)
 from pagure_importer.utils.exceptions import (
@@ -20,33 +17,8 @@ class GithubImporter():
         self.github_project_name = project
         self.github = Github(username, password)
 
-        otp_auth = self.get_auth_token()
+        otp_auth = get_auth_token(self.github)
         self.github = Github(otp_auth)
-
-    def get_auth_token(self):
-        cfg_path = os.path.join(os.environ.get('HOME'), '.pgimport')
-        if os.path.exists(cfg_path):
-            parser = ConfigParser.RawConfigParser()
-            parser.read(cfg_path)
-            otp_auth = parser.get('github', 'auth_token')
-        else:
-            otp_auth = self.create_auth_token()
-            otp_auth = otp_auth.token
-            with click.open_file(cfg_path, 'w+') as fp:
-                fp.write('[github] \nauth_token : %s' % otp_auth)
-        return otp_auth
-
-    def create_auth_token(self):
-        user = self.github.get_user()
-        try:
-            otp_auth = user.create_authorization(scopes=['user'],
-                                                 note='pgimport')
-        except TwoFactorException:
-            otp_key = click.prompt("Enter github Two-Factor Auth key: ")
-            otp_auth = user.create_authorization(scopes=['user'],
-                                                 note='pgimport',
-                                                 onetime_password=otp_key)
-        return otp_auth
 
     def import_issues(self, repo_path, repo_folder, status='all'):
         ''' Imports the issues on github for

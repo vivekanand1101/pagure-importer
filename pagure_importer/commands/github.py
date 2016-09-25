@@ -10,12 +10,12 @@ from pagure_importer.utils import (
 
 
 @app.command()
-@click.option('--username', prompt="Enter your Github Username: ",
+@click.option('--username', prompt='Enter your Github Username',
               help="Github username")
 @click.option('--password', prompt=True, hide_input=True,
               help="Github password")
 @click.option('--project',
-              prompt='Enter github project name like pypingou/pagure: ',
+              prompt='Enter github project name like pypingou/pagure',
               help="Github project like pypingou/pagure")
 def github(username, password, project):
     gen_json = click.confirm(
