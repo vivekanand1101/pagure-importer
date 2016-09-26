@@ -98,7 +98,7 @@ class GithubImporter():
                 pagure_issue_comment_editor = None
 
                 # comment updated at
-                pagure_issue_comment_edited_on = comment.updated_at
+                pagure_issue_comment_edited_on = comment.updated_at.strftime('%s')
 
                 # The User who commented
                 pagure_issue_comment_user = models.User(
@@ -115,7 +115,8 @@ class GithubImporter():
                         date_created=pagure_issue_comment_created_at,
                         user=pagure_issue_comment_user.to_json(),
                         edited_on=pagure_issue_comment_edited_on,
-                        editor=pagure_issue_comment_editor)
+                        editor=pagure_issue_comment_editor,
+                        attachment=None)
 
                 comments.append(pagure_issue_comment.to_json())
 

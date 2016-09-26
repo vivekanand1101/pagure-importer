@@ -84,7 +84,8 @@ def generate_json_for_github_contributors(github_username,
                 contributor_fullname = contributor['name']
                 contributor_name = data['committer']['login']
             except TypeError:
-                click.echo('Maybe one of the contributors is dropped because of lack of details')
+                click.echo('Maybe one of the contributors is dropped because\
+                            of lack of details')
                 continue
 
             json_data = {
@@ -100,7 +101,7 @@ def generate_json_for_github_contributors(github_username,
                     break
 
             if not present:
-                click.echo('contributor added: ', contributor_name)
+                click.echo('contributor added: ' + contributor_name)
                 contributors.append(json_data)
 
     with open('contributors.json', 'w') as f:
@@ -137,7 +138,8 @@ def generate_json_for_github_issue_commentors(github_username,
             try:
                 commentor = data['user']['login']
             except TypeError:
-                click.echo('Maybe one of the issue commentors have been dropped because of lack of details')
+                click.echo('Maybe one of the issue commentors have been\
+                            dropped because of lack of details')
                 continue
 
             present = False
@@ -147,7 +149,7 @@ def generate_json_for_github_issue_commentors(github_username,
                     break
 
             if not present:
-                click.echo('commentor added: ', commentor)
+                click.echo('commentor added: ' + commentor)
                 issue_commentors.append(commentor)
 
     with open('issue_commentors.json', 'w') as f:
