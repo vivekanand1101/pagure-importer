@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import uuid
 
 
@@ -9,7 +8,7 @@ class Issue():
     def __init__(
             self, id, title, content,
             status, date_created, user, private, attachment, tags,
-            depends, blocks, assignee, comments=None):
+            depends, blocks, assignee, comments=None, milestone=None):
 
         self.id = id
         self.title = title
@@ -25,6 +24,7 @@ class Issue():
         self.assignee = assignee
         self.comments = comments
         self.uid = uuid.uuid4().hex
+        self.milestone = milestone
 
     def to_json(self):
         ''' Returns a dictionary representation of the issue.
@@ -42,7 +42,8 @@ class Issue():
             'depends': self.depends,
             'blocks': self.blocks,
             'assignee': self.assignee,
-            'comments': self.comments
+            'comments': self.comments,
+            'milestone': self.milestone
         }
 
         return output
