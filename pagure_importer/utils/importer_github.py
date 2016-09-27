@@ -57,6 +57,9 @@ class GithubImporter():
             else:
                 pagure_issue_tags = []
 
+            pagure_issue_milestone = github_issue.milestone.title \
+                    if github_issue.milestone else None
+
             # few things not supported by github
             pagure_issue_depends = []
             pagure_issue_blocks = []
@@ -80,7 +83,8 @@ class GithubImporter():
                     tags=pagure_issue_tags,
                     depends=pagure_issue_depends,
                     blocks=pagure_issue_blocks,
-                    assignee=pagure_issue_assignee)
+                    assignee=pagure_issue_assignee,
+                    milestone=pagure_issue_milestone)
 
             # comments on the issue
             comments = []
