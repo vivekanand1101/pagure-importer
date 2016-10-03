@@ -11,7 +11,10 @@ from pagure_importer.utils.exceptions import (
 
 class GithubImporter():
     ''' Imports from Github using PyGithub and libpagure '''
+
     def __init__(self, username, password, project):
+        ''' Instantiate GithubImporter object '''
+
         self.github_username = username
         self.github_password = password
         self.github_project_name = project
@@ -58,7 +61,7 @@ class GithubImporter():
                 pagure_issue_tags = []
 
             pagure_issue_milestone = github_issue.milestone.title \
-                    if github_issue.milestone else None
+                if github_issue.milestone else None
 
             # few things not supported by github
             pagure_issue_depends = []
@@ -91,10 +94,8 @@ class GithubImporter():
             for comment in github_issue.get_comments():
 
                 comment_user = comment.user
-                pagure_issue_comment_user_email = comment_user.email
                 pagure_issue_comment_body = comment.body
                 pagure_issue_comment_created_at = comment.created_at.strftime('%s')
-                pagure_issue_comment_updated_at = comment.updated_at.strftime('%s')
 
                 # No idea what to do with this right now
                 # editor: not supported by github api
@@ -108,8 +109,8 @@ class GithubImporter():
                 pagure_issue_comment_user = models.User(
                         name=comment_user.login,
                         fullname=comment_user.name,
-                        emails=[comment_user.email] if comment_user.email \
-                                else [github_get_commentor_email(comment_user.login)])
+                        emails=[comment_user.email] if comment_user.email
+                        else [github_get_commentor_email(comment_user.login)])
 
                 # Object to represent comment on an issue
                 pagure_issue_comment = models.IssueComment(

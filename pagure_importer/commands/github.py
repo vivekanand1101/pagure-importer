@@ -19,7 +19,8 @@ from pagure_importer.utils import (
               help="Github project like pypingou/pagure")
 def github(username, password, project):
     gen_json = click.confirm(
-        "Do you want to generate jsons for project's contributers and issue commentors?")
+        "Do you want to generate jsons for project's contributers"
+        " and issue commentors?")
     if gen_json:
         generate_json_for_github_contributors(
             username,

@@ -48,9 +48,6 @@ class Issue():
 
         return output
 
-    def get_attachment(self):
-        return self.attachment
-
     @property
     def isa(self):
         return 'issue'

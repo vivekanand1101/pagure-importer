@@ -3,6 +3,7 @@
 
     Modified by Clement Verna <cverna@tutanota.com> to add attachment support
 '''
+
 import shutil
 import os
 import pygit2
@@ -10,16 +11,20 @@ import json
 import hashlib
 import werkzeug
 
-from repo import *
+from repo import PagureRepo
 
 
 def get_secure_filename(attachment, filename):
+    ''' Hashes the file name, same as pagure '''
+
     filename = '%s-%s' % (hashlib.sha256(str(attachment)).hexdigest(),
                           werkzeug.secure_filename(str(filename)))
     return filename
 
 
 def clone_repo(repo_name, repo_folder):
+    ''' Clone the original repo where the commits will be made
+    before pushing back '''
 
     if not repo_folder:
         return
@@ -34,6 +39,8 @@ def clone_repo(repo_name, repo_folder):
 
 
 def push_delete_repo(newpath, new_repo):
+    ''' Push the changes to the originally cloned repo from pagure and delete
+    the cloned repo where the commits were going '''
 
     # Push to origin
     ori_remote = new_repo.remotes[0]
@@ -63,7 +70,7 @@ def update_git(obj, newpath, new_repo):
         added = True
 
     # If we have attachments
-    attachments = obj.get_attachment()
+    attachments = obj.attachment
     if attachments:
         if not os.path.exists(os.path.join(newpath, 'files')):
             os.mkdir(os.path.join(newpath, 'files'))

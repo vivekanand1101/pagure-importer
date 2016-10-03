@@ -14,6 +14,9 @@ from pagure_importer.app import REPO_PATH
 
 
 def create_auth_token(github):
+    ''' Creates github authentication token. If Two Factor Authentication
+    is enabled, the user will be asked to enter the key '''
+
     user = github.get_user()
     try:
         otp_auth = user.create_authorization(scopes=['user'],
@@ -27,6 +30,9 @@ def create_auth_token(github):
 
 
 def get_auth_token(github):
+    ''' Checks the .pgimport file for github authentication key,
+    if it is not present, creates it. '''
+
     cfg_path = os.path.join(os.environ.get('HOME'), '.pgimport')
     if os.path.exists(cfg_path):
         parser = ConfigParser.RawConfigParser()
@@ -41,6 +47,8 @@ def get_auth_token(github):
 
 
 def display_repo():
+    ''' Displays the list of repos elegantly '''
+
     repo = []
     index = 0
     click.secho('#### Repo available ####', fg='blue')
@@ -49,7 +57,7 @@ def display_repo():
             index += 1
             click.echo(str(index) + ' - ' + file)
             repo.append(file)
-    print
+    click.echo()
     return repo
 
 
@@ -71,7 +79,8 @@ def generate_json_for_github_contributors(github_username,
     while True:
         page += 1
         payload = {'page': page}
-        data_ = json.loads(requests.get(commits_url, params=payload,
+        data_ = json.loads(requests.get(
+                    commits_url, params=payload,
                     auth=HTTPBasicAuth(github_username, github_password)).text)
 
         if not data_:
@@ -128,8 +137,9 @@ def generate_json_for_github_issue_commentors(github_username,
     while True:
         page += 1
         payload = {'page': page}
-        data_ = json.loads(requests.get(issue_comment_url, params=payload,
-                    auth=HTTPBasicAuth(github_username, github_password)).text)
+        data_ = json.loads(requests.get(
+                issue_comment_url, params=payload,
+                auth=HTTPBasicAuth(github_username, github_password)).text)
 
         if not data_:
             break
@@ -196,8 +206,9 @@ def github_get_commentor_email(name):
     '''
 
     if not os.path.exists('assembled_commentors.csv'):
-        raise FileNotFound('The assembled_commentors.json file must be present \
-                Rerun the program and choose to generate the json files')
+        raise FileNotFound('The assembled_commentors.json file must be present'
+                           ' Rerun the program and choose to generate the json'
+                           ' files')
 
     data = []
     with open('assembled_commentors.csv') as ac:
@@ -205,13 +216,13 @@ def github_get_commentor_email(name):
         for row in reader:
             data.append(dict(
                 (('name', row['name']),
-                ('fullname', row['fullname']),
-                ('emails', row['emails']))))
+                 ('fullname', row['fullname']),
+                 ('emails', row['emails']))))
 
     for i in data:
         if i.get('name', None) == name:
             if i['emails']:
                 return str(i['emails'])
             else:
-                raise EmailNotFound('You need to fill out all the emails of the \
-                        issue commentors')
+                raise EmailNotFound('You need to fill out all the emails of'
+                                    ' the issue commentors')

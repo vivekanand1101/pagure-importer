@@ -1,8 +1,9 @@
-import requests
+import sys
 import time
 import base64
-import sys
 import click
+import requests
+
 from datetime import datetime
 from pagure_importer.utils.git import (
     clone_repo, get_secure_filename, push_delete_repo, update_git)
@@ -10,10 +11,12 @@ from pagure_importer.utils.models import User, Issue, IssueComment
 
 
 class TracImporter():
-    '''Pagure importer for trac instance'''
+    ''' Pagure importer for trac instance '''
 
     def __init__(self, project_url, username, password,
                  fasclient=None, tags=False, private=False):
+        ''' Instantiate a TracImporter object '''
+
         self.url = project_url
         self.username = username
         self.password = password
@@ -25,6 +28,8 @@ class TracImporter():
         self.reqid = 0
 
     def request(self, method, *args):
+        ''' Common method for querying trac '''
+
         self.reqid += 1
         req = {'params': args,
                'method': method,
@@ -35,13 +40,15 @@ class TracImporter():
         if resp['id'] != self.reqid:
             click.echo('ERROR: Invalid response for request! ID does not match')
             sys.exit(1)
-        if resp['error'] != None:
+        if resp['error'] is not None:
             click.echo("ERROR: Error in response: %s" % resp['error'])
             sys.exit(1)
 
         return resp['result']
 
     def to_timestamp(self, tm):
+        ''' Convert to timestamp which can be jsonified '''
+
         tm = tm.replace('+00:00', '')
         date = datetime.strptime(tm, '%Y-%m-%dT%H:%M:%S')
         ts = str(time.mktime(date.timetuple()))[:-2]  # Strip the .0
@@ -49,7 +56,8 @@ class TracImporter():
 
     def import_issues(self, repo_name, repo_folder,
                       trac_query='max=0&order=id'):
-        '''Import issues from trac instance using xmlrpc API'''
+        ''' Import issues from trac instance using jsonrpc API '''
+
         newpath, new_repo = clone_repo(repo_name, repo_folder)
         tickets_id = self.request('ticket.query', trac_query)
 
@@ -75,6 +83,7 @@ class TracImporter():
         push_delete_repo(newpath, new_repo)
 
     def create_issue(self, ticket_id):
+        ''' Create Issue object from track ticket '''
 
         trac_ticket_info = self.request('ticket.get', ticket_id)
         trac_ticket = trac_ticket_info[3]
@@ -83,7 +92,9 @@ class TracImporter():
         pagure_attachment = {}
         for attachment in trac_attachments:
             filename = attachment[0]
-            content = self.request('ticket.getAttachment', ticket_id, filename)['__jsonclass__'][1].replace('\n', '')
+            content = self.request(
+                'ticket.getAttachment',
+                ticket_id, filename)['__jsonclass__'][1].replace('\n', '')
             pagure_attachment[filename] = base64.b64decode(content)
 
         pagure_issue_title = trac_ticket['summary']
@@ -94,7 +105,8 @@ class TracImporter():
 
         pagure_issue_status = self.get_ticket_status(trac_ticket)
 
-        pagure_issue_created_at = self.to_timestamp(trac_ticket_info[1]['__jsonclass__'][1])
+        pagure_issue_created_at = self.to_timestamp(
+            trac_ticket_info[1]['__jsonclass__'][1])
 
         if self.fas:
             pagure_issue_assignee = self.fas.find_fas_user(
@@ -147,6 +159,7 @@ class TracImporter():
         return pagure_issue
 
     def get_ticket_status(self, trac_ticket):
+        ''' Returns the corresponding status of ticket on pagure '''
 
         if trac_ticket['status'] != 'closed':
             ticket_status = 'Open'
@@ -155,6 +168,8 @@ class TracImporter():
         return ticket_status
 
     def get_comment_user(self, comment):
+        ''' Returns the user who commented on the ticket '''
+
         # The User who commented
         if self.fas and comment[1]:
             pagure_issue_comment_user = self.fas.find_fas_user(comment[1])
@@ -165,6 +180,8 @@ class TracImporter():
         return pagure_issue_comment_user
 
     def create_comments(self, trac_comments):
+        ''' Create IssueComment objects from the trac comments '''
+
         comments = {}
         for comment in trac_comments:
             ts = self.to_timestamp(comment[0]['__jsonclass__'][1])
