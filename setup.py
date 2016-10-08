@@ -15,8 +15,9 @@ def read(fname):
 setup(
     name='pagure_importer',
     packages=['pagure_importer'],
-    version='1.2.0',
+    version='1.2.1',
     description='CLI tool for imports to Pagure',
+    long_description=read('README.md'),
     author='Vivek Anand',
     author_email='vivekanand1101@gmail.com',
     url='https://pagure.io/pagure-importer',
