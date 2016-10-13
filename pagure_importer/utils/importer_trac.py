@@ -164,7 +164,7 @@ class TracImporter():
         if trac_ticket['status'] != 'closed':
             ticket_status = 'Open'
         else:
-            ticket_status = 'Fixed'
+            ticket_status = 'Closed'
         return ticket_status
 
     def get_comment_user(self, comment):

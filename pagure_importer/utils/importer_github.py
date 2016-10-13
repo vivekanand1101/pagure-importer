@@ -49,7 +49,7 @@ class GithubImporter():
             if github_issue.state != 'closed':
                 pagure_issue_status = 'Open'
             else:
-                pagure_issue_status = 'Fixed'
+                pagure_issue_status = 'Closed'
 
             pagure_issue_created_at = github_issue.created_at.strftime('%s')
             # Not sure how to deal with this atm
