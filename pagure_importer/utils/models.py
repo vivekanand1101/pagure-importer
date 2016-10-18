@@ -7,13 +7,14 @@ class Issue():
 
     def __init__(
             self, id, title, content,
-            status, date_created, user, private, attachment, tags,
-            depends, blocks, assignee, comments=None, milestone=None):
+            status, close_status, date_created, user, private, attachment,
+            tags, depends, blocks, assignee, comments=None, milestone=None):
 
         self.id = id
         self.title = title
         self.content = content
         self.status = status
+        self.close_status = close_status
         self.date_created = date_created
         self.user = user
         self.private = private
@@ -35,6 +36,7 @@ class Issue():
             'title': self.title,
             'content': self.content,
             'status': self.status,
+            'close_status': self.close_status,
             'date_created': self.date_created,
             'user': self.user,
             'private': self.private,

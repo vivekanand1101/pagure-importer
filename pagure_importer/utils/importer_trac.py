@@ -103,7 +103,7 @@ class TracImporter():
         if pagure_issue_content == '':
             pagure_issue_content = '#No Description Provided'
 
-        pagure_issue_status = self.get_ticket_status(trac_ticket)
+        issue_status, close_status = self.get_ticket_status(trac_ticket)
 
         pagure_issue_created_at = self.to_timestamp(
             trac_ticket_info[1]['__jsonclass__'][1])
@@ -147,7 +147,8 @@ class TracImporter():
             id=ticket_id,
             title=pagure_issue_title,
             content=pagure_issue_content,
-            status=pagure_issue_status,
+            status=issue_status,
+            close_status=close_status,
             date_created=pagure_issue_created_at,
             user=pagure_issue_user.to_json(),
             private=pagure_issue_is_private,
@@ -162,10 +163,14 @@ class TracImporter():
         ''' Returns the corresponding status of ticket on pagure '''
 
         if trac_ticket['status'] != 'closed':
-            ticket_status = 'Open'
+            return ('Open', '')
+        elif trac_ticket['resolution'] in ['invalid', 'wontfix',
+                                           'worksforme', 'duplicate']:
+            return ('Closed', 'Invalid')
+        elif trac_ticket['resolution'] == 'insufficient_info':
+            return ('Closed', 'Insufficient data')
         else:
-            ticket_status = 'Closed'
-        return ticket_status
+            return ('Closed', 'Fixed')
 
     def get_comment_user(self, comment):
         ''' Returns the user who commented on the ticket '''
