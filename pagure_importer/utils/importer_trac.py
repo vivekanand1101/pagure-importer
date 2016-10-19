@@ -129,11 +129,8 @@ class TracImporter():
             pagure_issue_tags = filter(
                 lambda x: x != '', trac_ticket['keywords'].split(' '))
 
-            try:
-                if trac_ticket['milestone'] != '':
-                    pagure_issue_tags.append(str(trac_ticket['milestone']))
-            except KeyError:
-                pass
+            if 'milestone' in trac_ticket and trac_ticket['milestone'] != '':
+                pagure_issue_tags.append(str(trac_ticket['milestone']))
 
         # Remove ',' between the tags and convert all tags to lower case
         pagure_issue_tags = list(set([j for k in [i.lower().split(',')
