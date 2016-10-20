@@ -8,8 +8,8 @@ class Issue():
     def __init__(
             self, id, title, content,
             status, date_created, user, private, attachment, tags,
-            depends, blocks, assignee, comments=None, milestone=None,
-            close_status='Fixed'):
+            depends, blocks, assignee, close_status, comments=None,
+            milestone=None):
 
         self.id = id
         self.title = title

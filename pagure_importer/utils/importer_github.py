@@ -48,8 +48,10 @@ class GithubImporter():
             # Some details of a issue
             if github_issue.state != 'closed':
                 pagure_issue_status = 'Open'
+                close_status=''
             else:
                 pagure_issue_status = 'Closed'
+                close_status = 'Fixed'
 
             pagure_issue_created_at = github_issue.created_at.strftime('%s')
             # Not sure how to deal with this atm
@@ -79,6 +81,7 @@ class GithubImporter():
                     title=pagure_issue_title,
                     content=pagure_issue_content,
                     status=pagure_issue_status,
+                    close_status=close_status,
                     date_created=pagure_issue_created_at,
                     user=pagure_issue_user.to_json(),
                     private=pagure_issue_is_private,
