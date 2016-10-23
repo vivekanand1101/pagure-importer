@@ -13,7 +13,7 @@ from pagure_importer.utils.models import User, Issue, IssueComment
 class TracImporter():
     ''' Pagure importer for trac instance '''
 
-    def __init__(self, project_url, username, password,
+    def __init__(self, project_url, username, password, offset,
                  fasclient=None, tags=False, private=False):
         ''' Instantiate a TracImporter object '''
 
@@ -23,6 +23,7 @@ class TracImporter():
         self.fas = fasclient
         self.tags = tags
         self.private = private
+        self.offset = offset
         self.somebody = User(name='somebody', fullname='somebody',
                              emails=['some@body.com'])
         self.reqid = 0
@@ -144,7 +145,7 @@ class TracImporter():
             pagure_issue_is_private = False
 
         pagure_issue = Issue(
-            id=ticket_id,
+            id=ticket_id + self.offset,
             title=pagure_issue_title,
             content=pagure_issue_content,
             status=issue_status,

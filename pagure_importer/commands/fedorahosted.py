@@ -14,7 +14,9 @@ from pagure_importer.utils.fas import FASclient
               help="FAS username")
 @click.option('--password', prompt=True, hide_input=True,
               help="FAS password")
-def fedorahosted(project_url, tags, private, username, password):
+@click.option('--offset', default=0,
+              help='Number of issue in pagure before import')
+def fedorahosted(project_url, tags, private, username, password, offset):
     fasclient = FASclient(username, password,
                           'https://admin.fedoraproject.org/accounts')
     project_url = project_url + '/login/jsonrpc'
@@ -24,8 +26,8 @@ def fedorahosted(project_url, tags, private, username, password):
                                   default=1)
         repo_name = repos[int(repo_index)-1]
         trac_importer = importer_trac.TracImporter(project_url, username,
-                                                   password, fasclient, tags,
-                                                   private)
+                                                   password, offset, fasclient,
+                                                   tags, private)
         trac_importer.import_issues(repo_name=repo_name, repo_folder=REPO_PATH)
     else:
         click.echo('No ticket repository found. Use pgimport clone command')
