@@ -47,6 +47,9 @@ CLI tool for importing issues etc. from different sources like github to pagure
         Options:
         --tags  Import pagure tags as well.
         --private By default make all issues private.
+        --username TEXT FAS username
+        --password TEXT FAS password
+        --offset INTEGER Number of issue in pagure before import
         --help  Show this message and exit.
 
 
@@ -57,6 +60,17 @@ CLI tool for importing issues etc. from different sources like github to pagure
     $ pgimport fedorahosted https://fedorahosted.org/foobar --private
 
    This command will import all the fedorahosted tickets as private tickets in pagure
+
+    $ pgimport fedorahosted https://fedorahosted.org/foobar --offset 10
+
+   This command will import all the fedorahosted tickets starting using their
+   former trac ID + the offset number 10 in this example. This is usefull for project
+   which already have issues in pagure before import.
+
+    $ pgimport fedorahosted https://fedorahosted.org/foobar --username foo --password bar
+
+   This command will run the import using the username and password provided in the command
+   line without prompting the user. This is usefull to use pgimport in a script.
 
 3) The push command can be used to push a clone pagure ticket repo back to pagure.
 
@@ -69,7 +83,7 @@ CLI tool for importing issues etc. from different sources like github to pagure
 
      $ pgimport clone ssh://git@pagure.io/tickets/foobar.git
 
-    This will clone the pagure foobar repository into the default set /tmp directory as /tmp/foobar.git
+   This will clone the pagure foobar repository into the default set /tmp directory as /tmp/foobar.git
 
 2) The github command can be used to import issues from a github project to pagure
 
