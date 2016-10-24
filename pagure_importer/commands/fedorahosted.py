@@ -17,6 +17,8 @@ from pagure_importer.utils.fas import FASclient
 @click.option('--offset', default=0,
               help='Number of issue in pagure before import')
 def fedorahosted(project_url, tags, private, username, password, offset):
+    if project_url.endswith('/'):
+        project_url = project_url[:-1]
     fasclient = FASclient(username, password,
                           'https://admin.fedoraproject.org/accounts')
     project_url = project_url + '/login/jsonrpc'
