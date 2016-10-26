@@ -9,9 +9,10 @@ CLI tool for importing issues etc. from different sources like github to pagure
 ---
 0. Clone the issue tracker for issues from pagure. Use: ```pgimport clone  ssh://git@pagure.io/tickets/foobar.git```
 1. Activate the pagure tickets hook from project settings. This is necessary step to also get pagure database updated for tickets repository changes.
-2. Execute ```pgimport```. See Usage section
-3. Just answer what is asked. Check below instructions for particular source
-4. The script will make commits in your cloned repo: push the changes back to pagure. Use : ```pgimport push foobar.git```
+2. Deactivate the pagure Fedmsg hook from project settings. This will avoid the issues import to spam the fedmsg bus. The Hook can be reactivated  once the import has completed.
+3. Execute ```pgimport```. See Usage section
+4. Just answer what is asked. Check below instructions for particular source
+5. The script will make commits in your cloned repo: push the changes back to pagure. Use : ```pgimport push foobar.git```
 
 
 ## Usage
