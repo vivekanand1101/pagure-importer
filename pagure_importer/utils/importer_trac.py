@@ -70,9 +70,8 @@ class TracImporter():
             # add all the comments to the issue object
             for key in comments:
                 if comments[key].attachment:
-                    for file in comments[key].attachment:
-                        attach_name = file
-                        project = repo_name.replace('.git', '')
+                    project = repo_name.replace('.git', '')
+                    for attach_name in comments[key].attachment:
                         filename = get_secure_filename(
                             pagure_issue.attachment[attach_name], attach_name)
                         url = '/%s/issue/raw/files/%s' % (project, filename)
