@@ -5,6 +5,12 @@ CLI tool for importing issues etc. from different sources like github to pagure
 ---
 *  Install it using ```pip``` . ```pip install pagure_importer```
 
+*  Install it using [copr](https://copr.fedorainfracloud.org/coprs/cverna/pagure-importer/).
+```
+    $ dnf copr enable cverna/pagure-importer
+    $ dnf install python2-pagure_importer
+```
+
 ## How to run
 ---
 0. Clone the issue tracker for issues from pagure. Use: ```pgimport clone  ssh://git@pagure.io/tickets/foobar.git```
