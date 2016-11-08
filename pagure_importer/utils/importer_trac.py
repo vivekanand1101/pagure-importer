@@ -42,7 +42,7 @@ class TracImporter(object):
         self.somebody = User(name='somebody', fullname='somebody',
                              emails=['some@body.com'])
         self.reqid = 0
-        self.custom_fields = self.get_custom_fields()
+        self.custom_fields = []
 
     def __enter__(self):
         return self
@@ -107,6 +107,7 @@ class TracImporter(object):
         '''
 
         tickets_id = self.request('ticket.query', trac_query)
+        self.custom_fields = self.get_custom_fields()
 
         for ticket_id in tickets_id:
             pagure_issue = self.create_issue(ticket_id)

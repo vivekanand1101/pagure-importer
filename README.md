@@ -22,6 +22,10 @@ CLI tool for importing issues etc. from different sources like github to pagure
 ```
 * Inside the container you can use the pgimport command.
 
+#### Running the tests
+
+     $ python -m unittest discover tests
+
 ## How to run
 ---
 0. Clone the issue tracker for issues from pagure. Use: ```pgimport clone  ssh://git@pagure.io/tickets/foobar.git```
