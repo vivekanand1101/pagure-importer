@@ -74,7 +74,8 @@ class GithubImporter():
             pagure_issue_user = models.User(
                     name=github_issue.user.login,
                     fullname=github_issue.user.name,
-                    emails=[github_issue.user.email])
+                    emails=[github_issue.user.email] if github_issue.user.email
+                            else [github_get_commentor_email(github_issue.user.login)])
 
             pagure_issue = models.Issue(
                     id=None,

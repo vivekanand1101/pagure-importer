@@ -123,44 +123,24 @@ def generate_json_for_github_issue_commentors(github_username,
                                               github_password,
                                               github_project_name):
     ''' Will create a json file containing details of all the user
-    who have commented on any issue in the given project
+    who have commented on or filed any issue in the given project
     '''
 
     github_obj = Github(github_username, github_password)
     otp_auth = get_auth_token(github_obj)
     github_obj = Github(otp_auth)
     project = github_obj.get_repo(github_project_name)
-    issue_comment_url = project.issue_comment_url.replace('{/number}', '')
-
-    page = 0
     issue_commentors = []
-    while True:
-        page += 1
-        payload = {'page': page}
-        data_ = json.loads(requests.get(
-                issue_comment_url, params=payload,
-                auth=HTTPBasicAuth(github_username, github_password)).text)
 
-        if not data_:
-            break
+    for issue in project.get_issues(state='all'):
+        if not issue.user.login in issue_commentors:
+            issue_commentors.append(issue.user.login)
+            click.echo('commentor added: ' + issue.user.login)
 
-        for data in data_:
-            try:
-                commentor = data['user']['login']
-            except TypeError:
-                click.echo('Maybe one of the issue commentors have been\
-                            dropped because of lack of details')
-                continue
-
-            present = False
-            for i in issue_commentors:
-                if i == commentor:
-                    present = True
-                    break
-
-            if not present:
-                click.echo('commentor added: ' + commentor)
-                issue_commentors.append(commentor)
+    for comment in project.get_issues_comments():
+        if not comment.user.login in issue_commentors:
+            issue_commentors.append(comment.user.login)
+            click.echo('commentor added: ' + comment.user.login)
 
     with open('issue_commentors.json', 'w') as f:
         f.write(json.dumps(issue_commentors))
