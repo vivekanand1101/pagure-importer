@@ -1,3 +1,4 @@
+import re
 import sys
 import time
 import base64
@@ -125,17 +126,18 @@ class TracImporter():
                 fullname=trac_ticket['reporter'],
                 emails=[trac_ticket['reporter']+'@fedoraproject.org'])
 
+        # The milestone of the issue
+        pagure_milestone = None
+        if 'milestone' in trac_ticket and trac_ticket['milestone'] != '':
+            pagure_milestone = trac_ticket['milestone']
+
+        # Issue tags
         pagure_issue_tags = []
         if self.tags:
             pagure_issue_tags = filter(
                 lambda x: x != '', trac_ticket['keywords'].split(' '))
 
-            if 'milestone' in trac_ticket and trac_ticket['milestone'] != '':
-                pagure_issue_tags.append(str(trac_ticket['milestone']))
-
-        # Remove ',' between the tags and convert all tags to lower case
-        pagure_issue_tags = list(set([j for k in [i.lower().split(',')
-                                 for i in pagure_issue_tags] for j in k]))
+        pagure_issue_tags = self.pre_process_tags(pagure_issue_tags)
 
         pagure_issue_depends = []
         pagure_issue_blocks = []
@@ -155,10 +157,22 @@ class TracImporter():
             private=pagure_issue_is_private,
             attachment=pagure_attachment,
             tags=pagure_issue_tags,
+            milestone=pagure_milestone,
             depends=pagure_issue_depends,
             blocks=pagure_issue_blocks,
             assignee=pagure_issue_assignee.to_json())
         return pagure_issue
+
+    def pre_process_tags(self, tags):
+        ''' Pre process the tags before sending it to pagure '''
+
+        delims_str = ',|/|;|:|-|\+|\*|\'|\"'
+
+        # Remove the delims between the tags and convert all tags to lower case
+        pagure_issue_tags = list(set([j for k in [
+            re.split(delims_str, i.lower()) for i in tags] for j in k]))
+
+        return pagure_issue_tags
 
     def get_ticket_status(self, trac_ticket):
         ''' Returns the corresponding status of ticket on pagure '''
