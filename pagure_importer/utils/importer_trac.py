@@ -28,6 +28,7 @@ class TracImporter():
         self.somebody = User(name='somebody', fullname='somebody',
                              emails=['some@body.com'])
         self.reqid = 0
+        self.custom_fields = self.get_custom_fields()
 
     def request(self, method, *args):
         ''' Common method for querying trac '''
@@ -55,6 +56,21 @@ class TracImporter():
         date = datetime.strptime(tm, '%Y-%m-%dT%H:%M:%S')
         ts = str(time.mktime(date.timetuple()))[:-2]  # Strip the .0
         return ts
+
+    def get_custom_fields(self):
+        ''' Queries the fedorahosted api to get all ticket fields
+        and filters all the custom fields, returns
+        a list of dicts - dict with keys 'name' and 'key_type' '''
+
+        all_ticket_fields = self.request('ticket.getTicketFields')
+        custom_fields = []
+        for field in all_ticket_fields:
+            if field.get('custom') is True:
+                current_field = {}
+                current_field['name'] = field['name']
+                current_field['key_type'] = 'text'
+                custom_fields.append(current_field)
+        return custom_fields
 
     def import_issues(self, repo_name, repo_folder,
                       trac_query='max=0&order=id'):
@@ -84,6 +100,21 @@ class TracImporter():
                        str(ticket_id) + '/' + str(tickets_id[-1]))
         push_delete_repo(newpath, new_repo)
 
+    def get_custom_fields_of_ticket(self, trac_ticket):
+        ''' Given the trac ticket, it will return all the
+        custom fields of the ticket, in a form that it can
+        be used for pagure Issue '''
+
+        pagure_fields = []
+        for field in self.custom_fields:
+            if field['name'] in trac_ticket:
+                pagure_field = {}
+                pagure_field['name'] = field.get('name')
+                pagure_field['key_type'] = field.get('key_type')
+                pagure_field['value'] = trac_ticket.get(pagure_field['name'])
+                pagure_fields.append(pagure_field)
+        return pagure_fields
+
     def create_issue(self, ticket_id):
         ''' Create Issue object from track ticket '''
 
@@ -99,6 +130,7 @@ class TracImporter():
                 ticket_id, filename)['__jsonclass__'][1].replace('\n', '')
             pagure_attachment[filename] = base64.b64decode(content)
 
+        pagure_custom_fields = self.get_custom_fields_of_ticket(trac_ticket)
         pagure_issue_title = trac_ticket['summary']
 
         pagure_issue_content = trac_ticket['description']
@@ -160,7 +192,8 @@ class TracImporter():
             milestone=pagure_milestone,
             depends=pagure_issue_depends,
             blocks=pagure_issue_blocks,
-            assignee=pagure_issue_assignee.to_json())
+            assignee=pagure_issue_assignee.to_json(),
+            custom_fields=pagure_custom_fields,)
         return pagure_issue
 
     def pre_process_tags(self, tags):
