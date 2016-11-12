@@ -68,7 +68,10 @@ class TracImporter():
             if field.get('custom') is True:
                 current_field = {}
                 current_field['name'] = field['name']
-                current_field['key_type'] = 'text'
+                key_type = 'text'
+                if field['type'] == 'checkbox':
+                    key_type = 'boolean'
+                current_field['key_type'] = key_type
                 custom_fields.append(current_field)
         return custom_fields
 
