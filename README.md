@@ -7,8 +7,8 @@ CLI tool for importing issues etc. from different sources like github to pagure
 
 *  Install it using [copr](https://copr.fedorainfracloud.org/coprs/cverna/pagure-importer/).
 ```
-    $ dnf copr enable cverna/pagure-importer
-    $ dnf install python2-pagure_importer
+    $ sudo dnf copr enable cverna/pagure-importer
+    $ sudo dnf install python2-pagure_importer
 ```
 
 ## How to run
