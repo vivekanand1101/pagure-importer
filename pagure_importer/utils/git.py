@@ -11,8 +11,6 @@ import json
 import hashlib
 import werkzeug
 
-from repo import PagureRepo
-
 
 def get_secure_filename(attachment, filename):
     ''' Hashes the file name, same as pagure '''
@@ -47,7 +45,7 @@ def push_delete_repo(newpath, new_repo):
     master_ref = new_repo.lookup_reference('HEAD').resolve()
     refname = '%s:%s' % (master_ref.name, master_ref.name)
 
-    PagureRepo.push(ori_remote, refname)
+    ori_remote.push([refname])
 
     # Remove the clone
     shutil.rmtree(newpath)
