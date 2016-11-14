@@ -1,6 +1,6 @@
 PyGithub
 click
 python-fedora
-pygit2 >= 0.20.1
+pygit2 >= 0.22
 werkzeug
 requests
