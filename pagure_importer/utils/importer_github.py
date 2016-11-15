@@ -48,7 +48,7 @@ class GithubImporter():
             # Some details of a issue
             if github_issue.state != 'closed':
                 pagure_issue_status = 'Open'
-                close_status=''
+                close_status = ''
             else:
                 pagure_issue_status = 'Closed'
                 close_status = 'Fixed'

@@ -133,12 +133,12 @@ def generate_json_for_github_issue_commentors(github_username,
     issue_commentors = []
 
     for issue in project.get_issues(state='all'):
-        if not issue.user.login in issue_commentors:
+        if issue.user.login not in issue_commentors:
             issue_commentors.append(issue.user.login)
             click.echo('commentor added: ' + issue.user.login)
 
     for comment in project.get_issues_comments():
-        if not comment.user.login in issue_commentors:
+        if comment.user.login not in issue_commentors:
             issue_commentors.append(comment.user.login)
             click.echo('commentor added: ' + comment.user.login)
 
