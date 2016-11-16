@@ -36,7 +36,8 @@ class GithubImporter():
                     github_issue.assignee.login)]
             )
 
-        return assignee
+        if assignee:
+            return assignee.to_json()
 
     def import_issues(self, repo_path, repo_folder, status='all'):
         ''' Imports the issues on github for
