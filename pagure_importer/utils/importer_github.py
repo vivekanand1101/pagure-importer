@@ -2,7 +2,7 @@ import click
 from github import Github
 
 from pagure_importer.utils import (
-    models, github_get_commentor_email, get_auth_token)
+    models, gh_get_user_email, get_auth_token)
 from pagure_importer.utils.git import (
     clone_repo, push_delete_repo, update_git)
 from pagure_importer.utils.exceptions import (
@@ -33,8 +33,7 @@ class GithubImporter():
             assignee = models.User(
                 name=github_issue.assignee.login,
                 fullname=github_issue.assignee.name,
-                emails=[github_get_commentor_email(
-                    github_issue.assignee.login)]
+                emails=[gh_get_user_email(github_issue.assignee.login)]
             )
 
         if assignee:
@@ -96,7 +95,7 @@ class GithubImporter():
                     name=github_issue.user.login,
                     fullname=github_issue.user.name,
                     emails=[github_issue.user.email] if github_issue.user.email
-                            else [github_get_commentor_email(github_issue.user.login)])
+                            else [gh_get_user_email(github_issue.user.login)])
 
             pagure_issue = models.Issue(
                     id=None,
@@ -135,7 +134,7 @@ class GithubImporter():
                         name=comment_user.login,
                         fullname=comment_user.name,
                         emails=[comment_user.email] if comment_user.email
-                        else [github_get_commentor_email(comment_user.login)])
+                        else [gh_get_user_email(comment_user.login)])
 
                 # Object to represent comment on an issue
                 pagure_issue_comment = models.IssueComment(

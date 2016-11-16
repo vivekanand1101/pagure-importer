@@ -133,7 +133,7 @@ contributors and issue commentors. If you are running the script for github
 for the first time, the answer is 'y'.
 
 3. The above step will create 3 different files: ```contributors.json```
-```issue_commentors.json``` and ```assembled_commentors.csv```. The last file
+```issue_users.json``` and ```assembled_users.csv```. The last file
 is where all the edit has to go. All the missing entries in the assembled
 commentors file has to be filled for the running of the script.
 

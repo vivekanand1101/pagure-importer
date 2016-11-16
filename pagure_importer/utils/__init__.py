@@ -61,9 +61,7 @@ def display_repo():
     return repo
 
 
-def generate_json_for_github_contributors(github_username,
-                                          github_password,
-                                          github_project_name):
+def gh_get_contributors(github_username, github_password, github_project_name):
     ''' Creates a file containing a list of dicts containing the username and
     emails of the contributors in the given github project
     '''
@@ -119,9 +117,7 @@ def generate_json_for_github_contributors(github_username,
     return
 
 
-def generate_json_for_github_issue_commentors(github_username,
-                                              github_password,
-                                              github_project_name):
+def gh_get_issue_users(github_username, github_password, github_project_name):
     ''' Will create a json file containing details of all the user
     who have commented on or filed any issue in the given project
     This also contains users who are assignee of an issue
@@ -148,17 +144,17 @@ def generate_json_for_github_issue_commentors(github_username,
             issue_commentors_assignees.append(comment.user.login)
             click.echo('commentor added: ' + comment.user.login)
 
-    with open('issue_commentors.json', 'w') as f:
+    with open('issue_users.json', 'w') as f:
         f.write(json.dumps(issue_commentors_assignees))
     return
 
 
-def assemble_github_contributors_commentors():
+def gh_assemble_users():
     ''' It uses the files: issue_commentors.json and contributors.json
     Assembles and creates a file: assembled_commentors.csv
     To use: just fill the empty blocks under emails column'''
 
-    with open('issue_commentors.json', 'r') as ic:
+    with open('issue_users.json', 'r') as ic:
         issue_names = json.load(ic)
 
     with open('contributors.json', 'r') as c:
@@ -177,7 +173,7 @@ def assemble_github_contributors_commentors():
             d = {'name': i, 'fullname': None, 'emails': None}
             names.append(d)
 
-    with open('assembled_commentors.csv', 'w') as ac:
+    with open('assembled_users.csv', 'w') as ac:
         field_names = ['name', 'fullname', 'emails']
         writer = csv.DictWriter(ac, fieldnames=field_names)
 
@@ -186,18 +182,18 @@ def assemble_github_contributors_commentors():
             writer.writerow(name)
 
 
-def github_get_commentor_email(name):
+def gh_get_user_email(name):
     ''' Will return the issue commentor email as given in the
-    assembled_commentors.csv file
+    assembled_users.csv file
     '''
 
-    if not os.path.exists('assembled_commentors.csv'):
+    if not os.path.exists('assembled_users.csv'):
         raise FileNotFound('The assembled_commentors.json file must be present'
                            ' Rerun the program and choose to generate the json'
                            ' files')
 
     data = []
-    with open('assembled_commentors.csv') as ac:
+    with open('assembled_users.csv') as ac:
         reader = csv.DictReader(ac)
         for row in reader:
             data.append(dict(

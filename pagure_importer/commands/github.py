@@ -3,9 +3,7 @@ import pagure_importer
 from pagure_importer.app import app, REPO_PATH
 from pagure_importer.utils.importer_github import GithubImporter
 from pagure_importer.utils import (
-    generate_json_for_github_contributors,
-    generate_json_for_github_issue_commentors,
-    assemble_github_contributors_commentors
+    gh_get_contributors, gh_get_issue_users, gh_assemble_users,
 )
 
 
@@ -22,15 +20,9 @@ def github(username, password, project):
         "Do you want to generate jsons for project's contributers"
         " and issue commentors?")
     if gen_json:
-        generate_json_for_github_contributors(
-            username,
-            password,
-            project)
-        generate_json_for_github_issue_commentors(
-            username,
-            password,
-            project)
-        assemble_github_contributors_commentors()
+        gh_get_contributors(username, password, project)
+        gh_get_issue_users(username, password, project)
+        gh_assemble_users()
     else:
         repos = pagure_importer.utils.display_repo()
         if repos:
