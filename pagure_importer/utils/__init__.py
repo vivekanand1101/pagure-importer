@@ -3,7 +3,7 @@ import os
 import requests
 import json
 import click
-import ConfigParser
+import configparser
 from github import Github
 from github.GithubException import TwoFactorException
 
@@ -35,7 +35,7 @@ def get_auth_token(github):
 
     cfg_path = os.path.join(os.environ.get('HOME'), '.pgimport')
     if os.path.exists(cfg_path):
-        parser = ConfigParser.RawConfigParser()
+        parser = configparser.ConfigParser.RawConfigParser()
         parser.read(cfg_path)
         otp_auth = parser.get('github', 'auth_token')
     else:
