@@ -3,7 +3,7 @@ import os
 import requests
 import json
 import click
-import configparser
+from configparser import ConfigParser
 from github import Github
 from github.GithubException import TwoFactorException
 
@@ -35,9 +35,9 @@ def get_auth_token(github):
 
     cfg_path = os.path.join(os.environ.get('HOME'), '.pgimport')
     if os.path.exists(cfg_path):
-        parser = configparser.ConfigParser.RawConfigParser()
+        parser = ConfigParser()
         parser.read(cfg_path)
-        otp_auth = parser.get('github', 'auth_token')
+        otp_auth = parser['github']['auth_token']
     else:
         otp_auth = create_auth_token(github)
         otp_auth = otp_auth.token
@@ -91,8 +91,7 @@ def gh_get_contributors(github_username, github_password, github_project_name):
                 contributor_fullname = contributor['name']
                 contributor_name = data['committer']['login']
             except TypeError:
-                click.echo('Maybe one of the contributors is dropped because\
-                            of lack of details')
+                click.echo('Maybe one of the contributors is dropped because of lack of details')
                 continue
 
             json_data = {
