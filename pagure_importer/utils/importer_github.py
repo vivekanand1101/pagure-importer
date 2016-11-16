@@ -1,3 +1,4 @@
+import click
 from github import Github
 
 from pagure_importer.utils import (
@@ -49,8 +50,11 @@ class GithubImporter():
         except:
             raise GithubRepoNotFound(
                     'Repo not found, project name wrong')
+
         newpath, new_repo = clone_repo(repo_path, repo_folder)
-        for github_issue in repo.get_issues(state=status):
+        repo_issues = repo.get_issues(state=status)
+        issues_length = len(repo_issues)
+        for idx, github_issue in enumerate(repo_issues):
 
             # title of the issue
             pagure_issue_title = github_issue.title
@@ -151,4 +155,5 @@ class GithubImporter():
 
             # update the local git repo
             new_repo = update_git(pagure_issue, newpath, new_repo)
+            click.echo('Updated issue %s out of %s' % idx+1, issues_length)
         push_delete_repo(newpath, new_repo)
