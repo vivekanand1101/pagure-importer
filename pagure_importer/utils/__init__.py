@@ -70,45 +70,15 @@ def gh_get_contributors(github_username, github_password, github_project_name):
     otp_auth = get_auth_token(github_obj)
     github_obj = Github(otp_auth)
     project = github_obj.get_repo(github_project_name)
-    commits_url = project.commits_url.replace('{/sha}', '')
-
-    page = 0
+    project_commits = project.get_commits()
     contributors = []
-    while True:
-        page += 1
-        payload = {'page': page}
-        data_ = json.loads(requests.get(
-                    commits_url, params=payload,
-                    auth=HTTPBasicAuth(github_username, github_password)).text)
-
-        if not data_:
-            break
-
-        for data in data_:
-            try:
-                contributor = data['commit']['committer']
-                contributor_email = contributor['email']
-                contributor_fullname = contributor['name']
-                contributor_name = data['committer']['login']
-            except TypeError:
-                click.echo('Maybe one of the contributors is dropped because of lack of details')
-                continue
-
-            json_data = {
-                'name': contributor_name,
-                'fullname': contributor_fullname,
-                'emails': [contributor_email]
-            }
-
-            present = False
-            for i in contributors:
-                if i == json_data:
-                    present = True
-                    break
-
-            if not present:
-                click.echo('contributor added: ' + contributor_name)
-                contributors.append(json_data)
+    for commit in project_commits:
+        contributor= {'fullname': commit.author.name,
+                      'email': commit.author.email,
+                      'name': commit.author.login}
+        if not contributor in contributors:
+            contributors.append(contributor)
+            click.echo('contributor added: ' + contributor['name'])
 
     with open('contributors.json', 'w') as f:
         f.write(json.dumps(contributors))
