@@ -124,26 +124,32 @@ def generate_json_for_github_issue_commentors(github_username,
                                               github_project_name):
     ''' Will create a json file containing details of all the user
     who have commented on or filed any issue in the given project
+    This also contains users who are assignee of an issue
     '''
 
     github_obj = Github(github_username, github_password)
     otp_auth = get_auth_token(github_obj)
     github_obj = Github(otp_auth)
     project = github_obj.get_repo(github_project_name)
-    issue_commentors = []
+    issue_commentors_assignees = []
 
     for issue in project.get_issues(state='all'):
-        if issue.user.login not in issue_commentors:
-            issue_commentors.append(issue.user.login)
+        if issue.user.login not in issue_commentors_assignees:
+            issue_commentors_assignees.append(issue.user.login)
             click.echo('commentor added: ' + issue.user.login)
 
+        if issue.assignee and \
+                issue.assignee.login not in issue_commentors_assignees:
+            issue_commentors_assignees.append(issue.assignee.login)
+            click.echo('assignee added: ' + issue.assignee.login)
+
     for comment in project.get_issues_comments():
-        if comment.user.login not in issue_commentors:
-            issue_commentors.append(comment.user.login)
+        if comment.user.login not in issue_commentors_assignees:
+            issue_commentors_assignees.append(comment.user.login)
             click.echo('commentor added: ' + comment.user.login)
 
     with open('issue_commentors.json', 'w') as f:
-        f.write(json.dumps(issue_commentors))
+        f.write(json.dumps(issue_commentors_assignees))
     return
 
 

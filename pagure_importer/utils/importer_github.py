@@ -23,6 +23,21 @@ class GithubImporter():
         otp_auth = get_auth_token(self.github)
         self.github = Github(otp_auth)
 
+    def get_issue_assignee(self, github_issue):
+        ''' From the github issue object, return the
+        assignee of the issue if any '''
+
+        assignee = None
+        if github_issue.assignee:
+            assignee = models.User(
+                name=github_issue.assignee.login,
+                fullname=github_issue.assignee.name,
+                emails=[github_get_commentor_email(
+                    github_issue.assignee.login)]
+            )
+
+        return assignee
+
     def import_issues(self, repo_path, repo_folder, status='all'):
         ''' Imports the issues on github for
         the given project
@@ -54,8 +69,9 @@ class GithubImporter():
                 close_status = 'Fixed'
 
             pagure_issue_created_at = github_issue.created_at.strftime('%s')
-            # Not sure how to deal with this atm
-            pagure_issue_assignee = None
+
+            # Get the assignee of the issue
+            pagure_issue_assignee = self.get_issue_assignee(github_issue)
 
             if github_issue.labels:
                 pagure_issue_tags = [i.name for i in github_issue.labels]
