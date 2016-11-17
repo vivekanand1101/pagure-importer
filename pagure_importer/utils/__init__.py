@@ -70,13 +70,13 @@ def gh_get_contributors(github_username, github_password, github_project_name):
     otp_auth = get_auth_token(github_obj)
     github_obj = Github(otp_auth)
     project = github_obj.get_repo(github_project_name)
-    project_commits = project.get_commits()
+    project_contributors = project.get_contributors()
     contributors = []
-    for commit in project_commits:
-        contributor= {'fullname': commit.author.name,
-                      'email': commit.author.email,
-                      'name': commit.author.login}
-        if not contributor in contributors:
+    for user in project_contributors:
+        contributor = {'fullname': user.name,
+                       'email': user.email,
+                       'name': user.login}
+        if contributor not in contributors:
             contributors.append(contributor)
             click.echo('contributor added: ' + contributor['name'])
 
