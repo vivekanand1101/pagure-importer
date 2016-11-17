@@ -1,14 +1,10 @@
 import csv
 import os
-import requests
 import json
 import click
 from configparser import ConfigParser
 from github import Github
 from github.GithubException import TwoFactorException
-
-from requests.auth import HTTPBasicAuth
-
 from pagure_importer.utils.exceptions import FileNotFound, EmailNotFound
 from pagure_importer.app import REPO_PATH
 
@@ -70,12 +66,12 @@ def gh_get_contributors(github_username, github_password, github_project_name):
     otp_auth = get_auth_token(github_obj)
     github_obj = Github(otp_auth)
     project = github_obj.get_repo(github_project_name)
-    project_contributors = project.get_contributors()
+    project_commits = project.get_commits()
     contributors = []
-    for user in project_contributors:
-        contributor = {'fullname': user.name,
-                       'email': user.email,
-                       'name': user.login}
+    for commit in project_commits:
+        contributor = {'fullname': commit.author.name,
+                       'emails': commit.commit.author.email,
+                       'name': commit.author.login}
         if contributor not in contributors:
             contributors.append(contributor)
             click.echo('contributor added: ' + contributor['name'])
@@ -138,11 +134,11 @@ def gh_assemble_users():
                 found = True
 
         if not found:
-            d = {'name': i, 'fullname': None, 'email': None}
+            d = {'name': i, 'fullname': None, 'emails': None}
             names.append(d)
 
     with open('assembled_users.csv', 'w') as ac:
-        field_names = ['name', 'fullname', 'email']
+        field_names = ['name', 'fullname', 'emails']
         writer = csv.DictWriter(ac, fieldnames=field_names)
 
         writer.writeheader()
