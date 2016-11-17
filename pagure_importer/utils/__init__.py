@@ -134,16 +134,15 @@ def gh_assemble_users():
         found = False
         for j in contributors:
             if j.get('name', None) == i:
-                j['emails'] = j.get('emails')[0]
                 names.append(j)
                 found = True
 
         if not found:
-            d = {'name': i, 'fullname': None, 'emails': None}
+            d = {'name': i, 'fullname': None, 'email': None}
             names.append(d)
 
     with open('assembled_users.csv', 'w') as ac:
-        field_names = ['name', 'fullname', 'emails']
+        field_names = ['name', 'fullname', 'email']
         writer = csv.DictWriter(ac, fieldnames=field_names)
 
         writer.writeheader()
