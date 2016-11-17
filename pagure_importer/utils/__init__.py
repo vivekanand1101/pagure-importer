@@ -134,7 +134,7 @@ def gh_get_issue_users(github_username, github_password, github_project_name):
             issue_commentors_assignees.append(issue.user.login)
             click.echo('commentor added: ' + issue.user.login)
 
-        if issue.assignee and \
+        if issue.assignee is not None and \
                 issue.assignee.login not in issue_commentors_assignees:
             issue_commentors_assignees.append(issue.assignee.login)
             click.echo('assignee added: ' + issue.assignee.login)

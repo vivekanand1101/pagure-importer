@@ -29,14 +29,14 @@ class GithubImporter():
         assignee of the issue if any '''
 
         assignee = None
-        if github_issue.assignee:
+        if github_issue.assignee is not None:
             assignee = models.User(
                 name=github_issue.assignee.login,
                 fullname=github_issue.assignee.name,
                 emails=[gh_get_user_email(github_issue.assignee.login)]
             )
 
-        if assignee:
+        if assignee is not None:
             return assignee.to_json()
 
     def import_issues(self, repo_path, repo_folder, status='all'):
