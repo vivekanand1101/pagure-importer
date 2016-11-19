@@ -52,7 +52,9 @@ class GithubImporter():
 
         newpath, new_repo = clone_repo(repo_path, repo_folder)
         repo_issues = repo.get_issues(state=status)
-        issues_length = len(repo_issues)
+        issues_length = 0
+        for issue in repo_issues:
+            issues_length += 1
         for idx, github_issue in enumerate(repo_issues):
 
             # title of the issue
@@ -154,5 +156,5 @@ class GithubImporter():
 
             # update the local git repo
             new_repo = update_git(pagure_issue, newpath, new_repo)
-            click.echo('Updated issue %s out of %s' % idx+1, issues_length)
+            click.echo('Updated issue %s out of %s' % (idx+1, issues_length))
         push_delete_repo(newpath, new_repo)
