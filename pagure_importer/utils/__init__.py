@@ -3,10 +3,10 @@ import os
 import sys
 import json
 import re
+import hashlib
 import shutil
 
 import click
-import hashlib
 import pygit2
 import werkzeug
 

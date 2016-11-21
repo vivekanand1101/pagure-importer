@@ -1,17 +1,24 @@
-import click
+import re
+import base64
 import os
 import shutil
+
+import click
+import requests
 from github import Github
 
 from pagure_importer.utils import (
-    models, gh_get_user_email, get_auth_token, issue_to_json
+    models, gh_get_user_email, get_auth_token, issue_to_json, get_secure_filename
 )
+from pagure_importer.utils.git import clone_repo
+from pagure_importer.utils.exceptions import GithubRepoNotFound
 
 
 class GithubImporter(object):
     ''' Imports from Github using PyGithub and libpagure '''
 
-    def __init__(self, username, password, project, repo_name, repo_folder, nopush):
+    def __init__(self, username, password,
+                 project, repo_name, repo_folder, nopush, pagure_project):
         ''' Instantiate GithubImporter object '''
 
         self.username = username
@@ -22,6 +29,7 @@ class GithubImporter(object):
             repo_folder, 'clone-' + repo_name)
         self.nopush = nopush
         self.github_project_name = project
+        self.pagure_project = pagure_project
         self.github = Github(username, password)
 
         otp_auth = get_auth_token(self.github)
@@ -51,9 +59,34 @@ class GithubImporter(object):
         if assignee is not None:
             return assignee.to_json()
 
+    def get_comment_body(self, comment, pagure_attachments):
+        ''' Return the comment body. Check if there is
+        an attachment, if so return the attachment as well '''
+
+        whole_body = comment.body
+        attach_regex = '!\[.*\]\((.*)\)'
+        attach_url_list = re.findall(attach_regex, whole_body)
+        print (attach_url_list)
+        format_list = []
+        for attach_url in attach_url_list:
+            attach_name = attach_url.strip().rstrip('/').rsplit('/')[-1]
+            format_list.append(attach_name)
+            response = requests.get(attach_url)
+            if response.status_code == 200:
+                pagure_attachments[attach_name] = response.content
+                filename = get_secure_filename(
+                        pagure_attachments[attach_name], attach_name)
+                url = '/%s/issue/raw/files/%s' % (self.pagure_project, filename)
+            else:
+                url = '#Attachment Unavailable'
+            format_list.append(url)
+            format_list.append(url)
+        unformatted_body = re.sub(attach_regex, '\n[![%s](%s)](%s)', whole_body)
+        whole_body = unformatted_body % tuple(format_list)
+        return whole_body, pagure_attachments
+
     def import_issues(self, repo, status='all'):
-        ''' Imports the issues on github for the given project
-        '''
+        ''' Imports the issues on github for the given project '''
 
         repo_issues = repo.get_issues(state=status)
         issues_length = sum(1 for issue in repo_issues)
@@ -120,10 +153,14 @@ class GithubImporter(object):
 
             # comments on the issue
             comments = []
-            for comment in github_issue.get_comments():
 
+            # only github comments can have attachments
+            pagure_attachments = {}
+            for comment in github_issue.get_comments():
+                comment_attachments = {}
                 comment_user = comment.user
-                pagure_issue_comment_body = comment.body
+                pagure_issue_comment_body, comment_attachments = self.get_comment_body(
+                                        comment, comment_attachments)
                 pagure_issue_comment_created_at = comment.created_at.strftime('%s')
 
                 # No idea what to do with this right now
@@ -152,10 +189,13 @@ class GithubImporter(object):
                         editor=pagure_issue_comment_editor,
                         attachment=None)
 
+                pagure_attachments.update(comment_attachments)
                 comments.append(pagure_issue_comment.to_json())
 
-            # add all the comments to the issue object
+            # add all the comments to the issue object and the attachments
             pagure_issue.comments = comments
+            pagure_issue.attachment = pagure_attachments
+            print (pagure_attachments)
 
             click.echo('Updated %s with issue : %s/%s' % (self.repo_name, idx + 1, issues_length))
             issue_to_json(pagure_issue, self.clone_repo_location)

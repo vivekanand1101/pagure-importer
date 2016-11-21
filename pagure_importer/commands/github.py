@@ -24,9 +24,17 @@ import pagure_importer.utils.git as gitutils
               help="Status of issue/PR to be imported(open/closed/all)")
 @click.option('--nopush', is_flag=True,
               help="Do not push the result of pagure-importer back")
-def github(username, project, nopush, status, gencsv):
-    ''' Command to import from github '''
+@click.option('--pagure_project',
+              prompt='Enter name of pagure project: \n'
+                     ' 1. it is a fork then like: fork/<username>/<projectname>\n'
+                     ' 2. it has a namespace: <namespacename>/<projectname>\n'
+                     ' 3. it is a fork of namespaced project:'
+                     ' fork/<username>/<namespacename>/<projectname>')
+def github(username, project, nopush, pagure_project, status, gencsv):
+    ''' For imports from github '''
+
     password = click.prompt("Github Password", hide_input=True)
+    pagure_project = pagure_project.rstrip('/').lstrip('/')
     if gencsv:
         gh_get_contributors(username, password, project)
         gh_get_issue_users(username, password, project)
@@ -45,6 +53,7 @@ def github(username, project, nopush, status, gencsv):
                                 project=project,
                                 repo_name=repo_name,
                                 repo_folder=REPO_PATH,
+                                pagure_project=pagure_project,
                                 nopush=nopush) as github_importer:
 
                 repo = github_importer.github.get_repo(
