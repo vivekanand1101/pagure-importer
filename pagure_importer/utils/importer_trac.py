@@ -41,11 +41,15 @@ class TracImporter():
                              auth=(self.username, self.password))
         resp = resp.json()
         if resp['id'] != self.reqid:
-            click.echo('ERROR: Invalid response for request! ID does not match')
+            click.echo('ERROR: Invalid response for request! ' +
+                       'ID does not match')
             sys.exit(1)
         if resp['error'] is not None:
-            click.echo("ERROR: Error in response: %s" % resp['error'])
-            sys.exit(1)
+            # Ignore missing attachment errors
+            if 'Attachment ' not in resp['error']['message'] and \
+               ' not found' not in resp['error']['message']:
+                click.echo("ERROR: Error in response: %s" % resp['error'])
+                sys.exit(1)
 
         return resp['result']
 
@@ -89,13 +93,15 @@ class TracImporter():
             comments = self.create_comments(pagure_issue_comments)
             # add all the comments to the issue object
             for key in comments:
-                if comments[key].attachment:
+                if comments[key].attachment is not None and \
+                   comments[key].attachment in pagure_issue.attachment:
                     project = repo_name.replace('.git', '')
                     for attach_name in comments[key].attachment:
                         filename = get_secure_filename(
                             pagure_issue.attachment[attach_name], attach_name)
                         url = '/%s/issue/raw/files/%s' % (project, filename)
-                        comments[key].comment += '\n[%s](%s)' % (attach_name, url)
+                        comments[key].comment += ('\n[%s](%s)' %
+                                                  (attach_name, url))
                 pagure_issue.comments.append(comments[key].to_json())
             # update the local git repo
             new_repo = update_git(pagure_issue, newpath, new_repo)
@@ -128,10 +134,12 @@ class TracImporter():
         pagure_attachment = {}
         for attachment in trac_attachments:
             filename = attachment[0]
-            content = self.request(
+            attachment_resp = self.request(
                 'ticket.getAttachment',
-                ticket_id, filename)['__jsonclass__'][1].replace('\n', '')
-            pagure_attachment[filename] = base64.b64decode(content)
+                ticket_id, filename)
+            if attachment_resp:
+                content = attachment_resp['__jsonclass__'][1].replace('\n', '')
+                pagure_attachment[filename] = base64.b64decode(content)
 
         pagure_custom_fields = self.get_custom_fields_of_ticket(trac_ticket)
         pagure_issue_title = trac_ticket['summary']
