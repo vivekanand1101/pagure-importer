@@ -11,6 +11,9 @@ from pagure_importer.utils.git import (
     clone_repo, get_secure_filename, push_delete_repo, update_git)
 from pagure_importer.utils.models import User, Issue, IssueComment
 
+CLOSE_STATUS = {'Invalid': ['invalid', 'wontfix', 'worksforme'],
+                'Insufficient data': ['insufficient_info'], 'Duplicate': ['duplicate']}
+
 
 class TracImporter():
     ''' Pagure importer for trac instance '''
@@ -226,12 +229,10 @@ class TracImporter():
 
         if trac_ticket['status'] != 'closed':
             return ('Open', '')
-        elif trac_ticket['resolution'] in ['invalid', 'wontfix',
-                                           'worksforme', 'duplicate']:
-            return ('Closed', 'Invalid')
-        elif trac_ticket['resolution'] == 'insufficient_info':
-            return ('Closed', 'Insufficient data')
         else:
+            for status in CLOSE_STATUS:
+                if trac_ticket['resolution'] in CLOSE_STATUS[status]:
+                    return ('Closed', status)
             return ('Closed', 'Fixed')
 
     def get_comment_user(self, comment):
