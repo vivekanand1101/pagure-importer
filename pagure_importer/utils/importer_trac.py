@@ -6,13 +6,10 @@ import click
 import requests
 
 from datetime import datetime
-from pagure_importer.utils import get_pagure_namespace
+from pagure_importer.utils import get_pagure_namespace, get_close_status
 from pagure_importer.utils.git import (
     clone_repo, get_secure_filename, push_delete_repo, update_git)
 from pagure_importer.utils.models import User, Issue, IssueComment
-
-CLOSE_STATUS = {'Invalid': ['invalid', 'wontfix', 'worksforme'],
-                'Insufficient data': ['insufficient_info'], 'Duplicate': ['duplicate']}
 
 
 class TracImporter():
@@ -226,14 +223,18 @@ class TracImporter():
 
     def get_ticket_status(self, trac_ticket):
         ''' Returns the corresponding status of ticket on pagure '''
-
-        if trac_ticket['status'] != 'closed':
-            return ('Open', '')
+        close_status = get_close_status()
+        if close_status is not None:
+            if trac_ticket['status'] != 'closed':
+                return ('Open', '')
+            else:
+                for status in close_status:
+                    if trac_ticket['resolution'] in close_status[status]:
+                        return ('Closed', status)
+                return ('Closed', 'Fixed')
         else:
-            for status in CLOSE_STATUS:
-                if trac_ticket['resolution'] in CLOSE_STATUS[status]:
-                    return ('Closed', status)
-            return ('Closed', 'Fixed')
+            click.echo('ERROR: Close Status not read from config file')
+            sys.exit(1)
 
     def get_comment_user(self, comment):
         ''' Returns the user who commented on the ticket '''
