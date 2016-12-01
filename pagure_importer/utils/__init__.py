@@ -10,6 +10,10 @@ from github.GithubException import TwoFactorException
 from pagure_importer.utils.exceptions import FileNotFound, EmailNotFound
 from pagure_importer.app import REPO_PATH
 
+CFG_PATH = os.path.join(os.environ.get('HOME'), '.pgimport')
+CONFIG = ConfigParser()
+CONFIG.optionxform = str
+
 
 def create_auth_token(github):
     ''' Creates github authentication token. If Two Factor Authentication
@@ -27,21 +31,36 @@ def create_auth_token(github):
     return otp_auth
 
 
+def create_config():
+    CONFIG['close_status'] = {'Invalid': ['invalid', 'wontfix', 'worksforme'],
+                              'Insufficient data': ['insufficient_info'],
+                              'Duplicate': ['duplicate']}
+    CONFIG['github'] = {'auth_token': ''}
+    with click.open_file(CFG_PATH, 'w+') as config_file:
+        CONFIG.write(config_file)
+
+
+def get_close_status():
+    close_status = None
+    if os.path.exists(CFG_PATH):
+        CONFIG.read(CFG_PATH)
+        close_status = CONFIG['close_status']
+    return close_status
+
+
 def get_auth_token(github):
     ''' Checks the .pgimport file for github authentication key,
     if it is not present, creates it. '''
 
-    cfg_path = os.path.join(os.environ.get('HOME'), '.pgimport')
-    if os.path.exists(cfg_path):
-        parser = ConfigParser()
-        parser.read(cfg_path)
-        otp_auth = parser['github']['auth_token']
-    else:
-        otp_auth = create_auth_token(github)
-        otp_auth = otp_auth.token
-        with click.open_file(cfg_path, 'w+') as fp:
-            fp.write('[github] \nauth_token : %s' % otp_auth)
-    return otp_auth
+    if os.path.exists(CFG_PATH):
+        CONFIG.read(CFG_PATH)
+        otp_auth = CONFIG['github']['auth_token']
+        if not otp_auth:
+            otp_auth = create_auth_token(github)
+            CONFIG['github']['auth_token'] = otp_auth.token
+            with click.open_file(CFG_PATH, 'w+') as config_file:
+                CONFIG.write(config_file)
+        return otp_auth
 
 
 def display_repo():
