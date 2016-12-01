@@ -20,6 +20,22 @@ CLI tool for importing issues etc. from different sources like github to pagure
 4. Just answer what is asked. Check below instructions for particular source
 5. The script will make commits in your cloned repo: push the changes back to pagure. Use : ```pgimport push foobar.git```
 
+## Custom Close Status
+---
+pagure-importer creates a configuration under the home directory of the user $HOME/.pgimport. This configuration file contains the default close status.
+If this file is not present run the following command.
+    ```$ pgimport mkconfig```
+To add some new close status just edit the config file as follow. Where ```Foo``` is the pagure custom status and ```bar``` is the trac resolution status
+
+    [close_status]
+    Duplicate = ['duplicate']
+    Insufficient data = ['insufficient_info']
+    Invalid = ['invalid', 'wontfix', 'worksforme']
+    Foo = ['bar']
+
+    [github]
+    auth_token =
+
 
 ## Usage
 ---
