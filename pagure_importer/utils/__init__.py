@@ -1,5 +1,6 @@
 import csv
 import os
+import sys
 import json
 import click
 import urlparse
@@ -36,13 +37,25 @@ def create_config():
                               'Insufficient data': ['insufficient_info'],
                               'Duplicate': ['duplicate']}
     CONFIG['github'] = {'auth_token': ''}
-    with click.open_file(CFG_PATH, 'w+') as config_file:
-        CONFIG.write(config_file)
+    if os.path.exists(CFG_PATH):
+        if click.confirm('You already have a config file, if you continue '
+                         'your custom settings will be lost'):
+            with click.open_file(CFG_PATH, 'w+') as config_file:
+                CONFIG.write(config_file)
+        else:
+            sys.exit(1)
+    else:
+        with click.open_file(CFG_PATH, 'w+') as config_file:
+            CONFIG.write(config_file)
 
 
 def get_close_status():
     close_status = None
     if os.path.exists(CFG_PATH):
+        CONFIG.read(CFG_PATH)
+        close_status = CONFIG['close_status']
+    else:
+        create_config()
         CONFIG.read(CFG_PATH)
         close_status = CONFIG['close_status']
     return close_status

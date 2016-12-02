@@ -51,6 +51,7 @@ To add some new close status just edit the config file as follow. Where ```Foo``
       clone
       fedorahosted
       github
+      mkconfig
       push
 
 
@@ -98,6 +99,10 @@ To add some new close status just edit the config file as follow. Where ```Foo``
 3) The push command can be used to push a clone pagure ticket repo back to pagure.
 
     $ pgimport push foobar.git
+
+4) The mkconfig command will create a default config `.pgimport` file under the user $HOME directory.
+
+    $ pgimport mkconfig
 
 
 ### Migrate github issues to pagure
