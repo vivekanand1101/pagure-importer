@@ -2,6 +2,8 @@ import csv
 import os
 import json
 import click
+import urlparse
+import pygit2
 from configparser import ConfigParser
 from github import Github
 from github.GithubException import TwoFactorException
@@ -172,3 +174,18 @@ def gh_get_user_email(name):
             else:
                 raise EmailNotFound('You need to fill out all the emails of'
                                     ' the issue commentors')
+
+
+def get_pagure_namespace(repo_folder, repo_name):
+    ''' returns pagure namespace in the following format:
+    GROUP/PROJECT
+    '''
+
+    repo_path = os.path.join(repo_folder, repo_name)
+    repo = pygit2.Repository(repo_path)
+    remote_url = repo.remotes['origin'].url
+    remote_path = urlparse.urlparse(remote_url).path
+    remote_path = remote_path.replace('.git', '')
+    namespace_list = remote_path.split('/')[2:]
+    namespace = '/'.join(namespace_list)
+    return namespace

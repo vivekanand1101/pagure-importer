@@ -6,6 +6,7 @@ import click
 import requests
 
 from datetime import datetime
+from pagure_importer.utils import get_pagure_namespace
 from pagure_importer.utils.git import (
     clone_repo, get_secure_filename, push_delete_repo, update_git)
 from pagure_importer.utils.models import User, Issue, IssueComment
@@ -96,7 +97,8 @@ class TracImporter():
                 if comments[key].attachment is not None and \
                    any(attachment in comments[key].attachment for attachment in
                        pagure_issue.attachment):
-                    project = repo_name.replace('.git', '')
+                    project = get_pagure_namespace(repo_folder, repo_name)
+
                     for attach_name in comments[key].attachment:
                         filename = get_secure_filename(
                             pagure_issue.attachment[attach_name], attach_name)
