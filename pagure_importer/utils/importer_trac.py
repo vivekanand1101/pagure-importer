@@ -94,7 +94,8 @@ class TracImporter():
             # add all the comments to the issue object
             for key in comments:
                 if comments[key].attachment is not None and \
-                   comments[key].attachment in pagure_issue.attachment:
+                   any(attachment in comments[key].attachment for attachment in
+                       pagure_issue.attachment):
                     project = repo_name.replace('.git', '')
                     for attach_name in comments[key].attachment:
                         filename = get_secure_filename(
