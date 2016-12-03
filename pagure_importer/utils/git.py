@@ -14,9 +14,9 @@ import werkzeug
 
 def get_secure_filename(attachment, filename):
     ''' Hashes the file name, same as pagure '''
-    attach = str(attachment).encode('utf-8')
+    attach = str(attachment)
     filename = '%s-%s' % (hashlib.sha256(attach).hexdigest(),
-                          werkzeug.secure_filename(str(filename)))
+                          werkzeug.secure_filename(unicode(filename)))
     return filename
 
 
