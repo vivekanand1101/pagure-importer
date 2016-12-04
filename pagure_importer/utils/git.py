@@ -75,12 +75,12 @@ def update_git(obj, newpath, new_repo):
         for key in attachments.keys():
             filename = get_secure_filename(attachments[key], key)
             attach_path = os.path.join(newpath, 'files', filename)
-            if is_image(filename):
+            if is_image(key):
                 with open(attach_path, 'wb') as stream:
                     stream.write(attachments[key])
             else:
                 with open(attach_path, 'w') as stream:
-                    stream.write(str(attachments[key]))
+                    stream.write(attachments[key].decode())
             index.add('files/' + filename)
 
     # Write down what changed
