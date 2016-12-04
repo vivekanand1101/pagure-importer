@@ -10,7 +10,7 @@ import pygit2
 import json
 import hashlib
 import werkzeug
-
+from pagure_importer.utils import is_image
 
 def get_secure_filename(attachment, filename):
     ''' Hashes the file name, same as pagure '''
@@ -75,8 +75,12 @@ def update_git(obj, newpath, new_repo):
         for key in attachments.keys():
             filename = get_secure_filename(attachments[key], key)
             attach_path = os.path.join(newpath, 'files', filename)
-            with open(attach_path, 'w') as stream:
-                stream.write(str(attachments[key]))
+            if is_image(filename):
+                with open(attach_path, 'wb') as stream:
+                    stream.write(attachments[key])
+            else:
+                with open(attach_path, 'w') as stream:
+                    stream.write(str(attachments[key]))
             index.add('files/' + filename)
 
     # Write down what changed

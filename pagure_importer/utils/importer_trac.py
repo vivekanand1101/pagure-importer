@@ -1,12 +1,12 @@
-import re
 import sys
+import re
 import time
-import base64
 import click
 import requests
-
+from base64 import b64decode
 from datetime import datetime
-from pagure_importer.utils import get_pagure_namespace, get_close_status
+from pagure_importer.utils import (
+    get_pagure_namespace, get_close_status, is_image)
 from pagure_importer.utils.git import (
     clone_repo, get_secure_filename, push_delete_repo, update_git)
 from pagure_importer.utils.models import User, Issue, IssueComment
@@ -141,8 +141,12 @@ class TracImporter():
                 'ticket.getAttachment',
                 ticket_id, filename)
             if attachment_resp:
-                content = attachment_resp['__jsonclass__'][1].replace('\n', '')
-                pagure_attachment[filename] = base64.b64decode(content)
+                if is_image(filename):
+                    content = b64decode(attachment_resp['__jsonclass__'][1])
+                    pagure_attachment[filename] = content
+                else:
+                    content = b64decode(attachment_resp['__jsonclass__'][1].replace('\n', ''))
+                    pagure_attachment[filename] = content.decode()
 
         pagure_custom_fields = self.get_custom_fields_of_ticket(trac_ticket)
         pagure_issue_title = trac_ticket['summary']
@@ -164,13 +168,13 @@ class TracImporter():
                 pagure_issue_user = User(
                     name=trac_ticket['reporter'],
                     fullname=trac_ticket['reporter'],
-                    emails=[trac_ticket['reporter']+'@fedoraproject.org'])
+                    emails=[trac_ticket['reporter'] + '@fedoraproject.org'])
         else:
             pagure_issue_assignee = User(name='', fullname='', emails=[])
             pagure_issue_user = User(
                 name=trac_ticket['reporter'],
                 fullname=trac_ticket['reporter'],
-                emails=[trac_ticket['reporter']+'@fedoraproject.org'])
+                emails=[trac_ticket['reporter'] + '@fedoraproject.org'])
 
         # The milestone of the issue
         pagure_milestone = None

@@ -4,6 +4,7 @@ import sys
 import json
 import click
 import pygit2
+import re
 from urllib.parse import urlparse
 from configparser import ConfigParser
 from github import Github
@@ -226,3 +227,12 @@ def get_pagure_namespace(repo_folder, repo_name):
     namespace_list = remote_path.split('/')[2:]
     namespace = '/'.join(namespace_list)
     return namespace
+
+
+def is_image(filename):
+    ''' True is filename extension is .jpg, .png, .gif, .bmp or .jpeg else False'''
+
+    if re.match('\w+\.(jpg|png|gif|bmp|jpeg)', filename) is not None:
+        return True
+    else:
+        return False
