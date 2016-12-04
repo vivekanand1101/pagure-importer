@@ -3,8 +3,8 @@ import os
 import sys
 import json
 import click
-import urlparse
 import pygit2
+from urllib.parse import urlparse
 from configparser import ConfigParser
 from github import Github
 from github.GithubException import TwoFactorException
@@ -221,7 +221,7 @@ def get_pagure_namespace(repo_folder, repo_name):
     repo_path = os.path.join(repo_folder, repo_name)
     repo = pygit2.Repository(repo_path)
     remote_url = repo.remotes['origin'].url
-    remote_path = urlparse.urlparse(remote_url).path
+    remote_path = urlparse(remote_url).path
     remote_path = remote_path.replace('.git', '')
     namespace_list = remote_path.split('/')[2:]
     namespace = '/'.join(namespace_list)

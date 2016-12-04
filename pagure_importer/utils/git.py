@@ -14,9 +14,8 @@ import werkzeug
 
 def get_secure_filename(attachment, filename):
     ''' Hashes the file name, same as pagure '''
-    attach = str(attachment)
-    filename = '%s-%s' % (hashlib.sha256(attach).hexdigest(),
-                          werkzeug.secure_filename(unicode(filename)))
+    filename = '%s-%s' % (hashlib.sha256(attachment).hexdigest(),
+                          werkzeug.secure_filename(str(filename)))
     return filename
 
 
@@ -78,7 +77,7 @@ def update_git(obj, newpath, new_repo):
             attach_path = os.path.join(newpath, 'files', filename)
             with open(attach_path, 'w') as stream:
                 stream.write(str(attachments[key]))
-            index.add('files/'+filename)
+            index.add('files/' + filename)
 
     # Write down what changed
     with open(file_path, 'w') as stream:
