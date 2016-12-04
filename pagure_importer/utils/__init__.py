@@ -33,6 +33,9 @@ def create_auth_token(github):
 
 
 def create_config():
+    '''Create the config file with default close statuses
+    and an empty github auth_token'''
+
     CONFIG['close_status'] = {'Invalid': ['invalid', 'wontfix', 'worksforme'],
                               'Insufficient data': ['insufficient_info'],
                               'Duplicate': ['duplicate']}
@@ -50,6 +53,8 @@ def create_config():
 
 
 def get_close_status():
+    ''' Read the config file and returns the close statuses'''
+
     close_status = None
     if os.path.exists(CFG_PATH):
         CONFIG.read(CFG_PATH)
