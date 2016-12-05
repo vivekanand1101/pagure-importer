@@ -232,7 +232,8 @@ def get_pagure_namespace(repo_folder, repo_name):
 def is_image(filename):
     ''' True is filename extension is .jpg, .png, .gif, .bmp or .jpeg else False'''
 
-    if re.match('\w+\.(jpg|png|gif|bmp|jpeg)', filename) is not None:
+    if re.search('\.(jpg|png|gif|bmp|jpeg|JPG|PNG|GIF|BMP|JPEG)',
+                 filename) is not None:
         return True
     else:
         return False

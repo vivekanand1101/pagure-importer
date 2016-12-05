@@ -75,12 +75,15 @@ def update_git(obj, newpath, new_repo):
         for key in attachments.keys():
             filename = get_secure_filename(attachments[key], key)
             attach_path = os.path.join(newpath, 'files', filename)
-            if is_image(key):
-                with open(attach_path, 'wb') as stream:
-                    stream.write(attachments[key])
-            else:
+            # Try decoding Bytes to UTF-8
+            try:
                 with open(attach_path, 'w') as stream:
                     stream.write(attachments[key].decode())
+            # If it fails write the data as binary
+            except UnicodeDecodeError:
+                with open(attach_path, 'wb') as stream:
+                    stream.write(attachments[key])
+
             index.add('files/' + filename)
 
     # Write down what changed
