@@ -2,7 +2,7 @@ import click
 from github import Github
 
 from pagure_importer.utils import (
-    models, gh_get_user_email, get_auth_token)
+    models, gh_get_user_email, get_auth_token, Importer)
 from pagure_importer.utils.git import (
     clone_repo, push_delete_repo, update_git)
 from pagure_importer.utils.exceptions import (
@@ -10,14 +10,13 @@ from pagure_importer.utils.exceptions import (
 )
 
 
-class GithubImporter():
+class GithubImporter(Importer):
     ''' Imports from Github using PyGithub and libpagure '''
 
-    def __init__(self, username, password, project):
+    def __init__(self, username, password, project, repo_name, repo_folder):
         ''' Instantiate GithubImporter object '''
 
-        self.github_username = username
-        self.github_password = password
+        Importer.__init__(self, username, password, repo_name, repo_folder)
         self.github_project_name = project
         self.github = Github(username, password)
 
@@ -39,7 +38,7 @@ class GithubImporter():
         if assignee is not None:
             return assignee.to_json()
 
-    def import_issues(self, repo_path, repo_folder, status='all'):
+    def import_issues(self, status='all'):
         ''' Imports the issues on github for
         the given project
         '''
@@ -50,7 +49,7 @@ class GithubImporter():
             raise GithubRepoNotFound(
                     'Repo not found, project name wrong')
 
-        newpath, new_repo = clone_repo(repo_path, repo_folder)
+        newpath, new_repo = clone_repo(self.repo_name, self.repo_folder)
         repo_issues = repo.get_issues(state=status)
         issues_length = 0
         for issue in repo_issues:
