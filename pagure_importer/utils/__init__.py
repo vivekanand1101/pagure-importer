@@ -253,4 +253,5 @@ class Importer:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        ''' Delete the cloned repo where the commits were going '''
         shutil.rmtree(os.path.join(self.repo_folder, 'clone-' + self.repo_name))

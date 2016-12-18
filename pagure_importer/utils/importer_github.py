@@ -4,7 +4,7 @@ from github import Github
 from pagure_importer.utils import (
     models, gh_get_user_email, get_auth_token, Importer)
 from pagure_importer.utils.git import (
-    clone_repo, push_delete_repo, update_git)
+    clone_repo, push_repo, update_git)
 from pagure_importer.utils.exceptions import (
     GithubRepoNotFound
 )
@@ -156,4 +156,4 @@ class GithubImporter(Importer):
             # update the local git repo
             new_repo = update_git(pagure_issue, newpath, new_repo)
             click.echo('Updated issue %s out of %s' % (idx+1, issues_length))
-        push_delete_repo(newpath, new_repo)
+        push_repo(newpath, new_repo)

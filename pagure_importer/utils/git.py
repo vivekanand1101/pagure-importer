@@ -35,9 +35,8 @@ def clone_repo(repo_name, repo_folder):
     return (newpath, new_repo)
 
 
-def push_delete_repo(newpath, new_repo):
-    ''' Push the changes to the originally cloned repo from pagure and delete
-    the cloned repo where the commits were going '''
+def push_repo(newpath, new_repo):
+    ''' Push the changes to the originally cloned repo from pagure '''
 
     # Push to origin
     ori_remote = new_repo.remotes[0]
@@ -45,9 +44,6 @@ def push_delete_repo(newpath, new_repo):
     refname = '%s:%s' % (master_ref.name, master_ref.name)
 
     ori_remote.push([refname])
-
-    # Remove the clone
-    shutil.rmtree(newpath)
 
 
 def update_git(obj, newpath, new_repo):

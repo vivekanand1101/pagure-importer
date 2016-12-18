@@ -8,7 +8,7 @@ from datetime import datetime
 from pagure_importer.utils import (
     get_pagure_namespace, get_close_status, is_image, Importer)
 from pagure_importer.utils.git import (
-    clone_repo, get_secure_filename, push_delete_repo, update_git)
+    clone_repo, get_secure_filename, push_repo, update_git)
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
@@ -111,7 +111,7 @@ class TracImporter(Importer):
             new_repo = update_git(pagure_issue, newpath, new_repo)
             click.echo('Updated ' + self.repo_name + ' with issue :' +
                        str(ticket_id) + '/' + str(tickets_id[-1]))
-        push_delete_repo(newpath, new_repo)
+        push_repo(newpath, new_repo)
 
     def get_custom_fields_of_ticket(self, trac_ticket):
         ''' Given the trac ticket, it will return all the
