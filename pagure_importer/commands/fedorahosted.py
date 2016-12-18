@@ -20,15 +20,22 @@ def fedorahosted(project_url, tags, private, username, password, offset):
     project_url = project_url.rstrip('/')
     fasclient = FASclient(username, password,
                           'https://admin.fedoraproject.org/accounts')
-    project_url = project_url + '/login/jsonrpc'
+    project_url += '/login/jsonrpc'
     repos = pagure_importer.utils.display_repo()
     if repos:
         repo_index = click.prompt('Choose the import destination repo ',
                                   default=1)
         repo_name = repos[int(repo_index)-1]
-        trac_importer = importer_trac.TracImporter(project_url, username,
-                                                   password, offset, fasclient,
-                                                   tags, private)
-        trac_importer.import_issues(repo_name=repo_name, repo_folder=REPO_PATH)
+        with importer_trac.TracImporter(project_url=project_url,
+                                        username=username,
+                                        password=password,
+                                        offset=offset,
+                                        repo_name=repo_name,
+                                        repo_folder=REPO_PATH,
+                                        fasclient=fasclient,
+                                        tags=tags,
+                                        private=private) as trac_importer:
+
+            trac_importer.import_issues()
     else:
         click.echo('No ticket repository found. Use pgimport clone command')
