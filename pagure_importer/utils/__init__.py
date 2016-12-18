@@ -5,6 +5,7 @@ import json
 import click
 import pygit2
 import re
+import shutil
 from urllib.parse import urlparse
 from configparser import ConfigParser
 from github import Github
@@ -237,3 +238,19 @@ def is_image(filename):
         return True
     else:
         return False
+
+
+class Importer:
+    ''' Common Class for Github and Feodrahosted importer'''
+
+    def __init__(self, username, password, repo_name, repo_folder):
+        self.username = username
+        self.password = password
+        self.repo_name = repo_name
+        self.repo_folder = repo_folder
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        shutil.rmtree(os.path.join(self.repo_folder, 'clone-' + self.repo_name))

@@ -6,22 +6,20 @@ import requests
 from base64 import b64decode
 from datetime import datetime
 from pagure_importer.utils import (
-    get_pagure_namespace, get_close_status, is_image)
+    get_pagure_namespace, get_close_status, is_image, Importer)
 from pagure_importer.utils.git import (
     clone_repo, get_secure_filename, push_delete_repo, update_git)
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
-class TracImporter():
+class TracImporter(Importer):
     ''' Pagure importer for trac instance '''
 
-    def __init__(self, project_url, username, password, offset,
-                 fasclient=None, tags=False, private=False):
+    def __init__(self, project_url, username, password, offset, repo_name,
+                 repo_folder, fasclient=None, tags=False, private=False):
         ''' Instantiate a TracImporter object '''
-
+        Importer.__init__(self, username, password, repo_name, repo_folder)
         self.url = project_url
-        self.username = username
-        self.password = password
         self.fas = fasclient
         self.tags = tags
         self.private = private
@@ -80,11 +78,10 @@ class TracImporter():
                 custom_fields.append(current_field)
         return custom_fields
 
-    def import_issues(self, repo_name, repo_folder,
-                      trac_query='max=0&order=id'):
+    def import_issues(self, trac_query='max=0&order=id'):
         ''' Import issues from trac instance using jsonrpc API '''
 
-        newpath, new_repo = clone_repo(repo_name, repo_folder)
+        newpath, new_repo = clone_repo(self.repo_name, self.repo_folder)
         tickets_id = self.request('ticket.query', trac_query)
 
         for ticket_id in tickets_id:
@@ -97,7 +94,7 @@ class TracImporter():
                 if comments[key].attachment is not None and \
                    any(attachment in comments[key].attachment for attachment in
                        pagure_issue.attachment):
-                    project = get_pagure_namespace(repo_folder, repo_name)
+                    project = get_pagure_namespace(self.repo_folder, self.repo_name)
 
                     for attach_name in comments[key].attachment:
                         filename = get_secure_filename(
@@ -112,7 +109,7 @@ class TracImporter():
                 pagure_issue.comments.append(comments[key].to_json())
             # update the local git repo
             new_repo = update_git(pagure_issue, newpath, new_repo)
-            click.echo('Updated ' + repo_name + ' with issue :' +
+            click.echo('Updated ' + self.repo_name + ' with issue :' +
                        str(ticket_id) + '/' + str(tickets_id[-1]))
         push_delete_repo(newpath, new_repo)
 
