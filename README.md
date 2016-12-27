@@ -1,15 +1,26 @@
 # pagure-importer
 CLI tool for importing issues etc. from different sources like github to pagure
 
-## Installation in a Virtual Environment
+## Installation
 ---
+
+#### In a Virtual Environment
 *  Install it using ```pip``` . ```pip install pagure_importer```
 
+#### Using COPR package
 *  Install it using [copr](https://copr.fedorainfracloud.org/coprs/cverna/pagure-importer/).
 ```
     $ sudo dnf copr enable cverna/pagure-importer
     $ sudo dnf install python3-pgimport
 ```
+
+#### Using Docker
+* Build and run a container using the Dockerfile in this repository
+```
+    $ docker build -t pgimport .
+    $ docker run -t -i -v ~/.ssh/:/root/.ssh/:Z /bin/bash
+```
+* Inside the container you can use the pgimport command.
 
 ## How to run
 ---
