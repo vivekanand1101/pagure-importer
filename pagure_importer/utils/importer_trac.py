@@ -12,6 +12,15 @@ from pagure_importer.utils.git import (
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
+def to_timestamp(tm):
+    ''' Convert to timestamp which can be jsonified '''
+
+    tm = tm.replace('+00:00', '')
+    date = datetime.strptime(tm, '%Y-%m-%dT%H:%M:%S')
+    ts = str(time.mktime(date.timetuple()))[:-2]  # Strip the .0
+    return ts
+
+
 class TracImporter(Importer):
     ''' Pagure importer for trac instance '''
 
@@ -52,13 +61,6 @@ class TracImporter(Importer):
 
         return resp['result']
 
-    def to_timestamp(self, tm):
-        ''' Convert to timestamp which can be jsonified '''
-
-        tm = tm.replace('+00:00', '')
-        date = datetime.strptime(tm, '%Y-%m-%dT%H:%M:%S')
-        ts = str(time.mktime(date.timetuple()))[:-2]  # Strip the .0
-        return ts
 
     def get_custom_fields(self):
         ''' Queries the fedorahosted api to get all ticket fields
@@ -159,7 +161,7 @@ class TracImporter(Importer):
 
         issue_status, close_status = self.get_ticket_status(trac_ticket)
 
-        pagure_issue_created_at = self.to_timestamp(
+        pagure_issue_created_at = to_timestamp(
             trac_ticket_info[1]['__jsonclass__'][1])
 
         if self.fas:
@@ -259,7 +261,7 @@ class TracImporter(Importer):
 
         comments = {}
         for comment in trac_comments:
-            ts = self.to_timestamp(comment[0]['__jsonclass__'][1])
+            ts = to_timestamp(comment[0]['__jsonclass__'][1])
 
             if comment[2] == 'comment' and comment[4] != '':
                 if ts in comments:
