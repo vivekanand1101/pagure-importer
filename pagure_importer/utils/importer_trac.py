@@ -7,8 +7,7 @@ from base64 import b64decode
 from datetime import datetime
 from pagure_importer.utils import (
     get_pagure_namespace, get_close_status, is_image, Importer,
-    issue_to_json)
-from pagure_importer.utils.git import get_secure_filename
+    issue_to_json, get_secure_filename)
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 

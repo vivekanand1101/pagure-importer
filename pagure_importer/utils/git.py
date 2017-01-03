@@ -6,19 +6,8 @@
 
 import shutil
 import os
+
 import pygit2
-import json
-import hashlib
-import werkzeug
-
-from pagure_importer.utils import is_image, issue_to_json
-
-
-def get_secure_filename(attachment, filename):
-    ''' Hashes the file name, same as pagure '''
-    filename = '%s-%s' % (hashlib.sha256(attachment).hexdigest(),
-                          werkzeug.secure_filename(str(filename)))
-    return filename
 
 
 def clone_repo(repo_name, repo_folder):

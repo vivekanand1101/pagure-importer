@@ -2,10 +2,14 @@ import csv
 import os
 import sys
 import json
-import click
-import pygit2
 import re
 import shutil
+
+import click
+import hashlib
+import pygit2
+import werkzeug
+
 from urllib.parse import urlparse
 from configparser import ConfigParser
 from github import Github
@@ -277,12 +281,12 @@ def issue_to_json(issue, folder):
     # If we have attachments
     attachments = issue.attachment
     if attachments:
-        if not os.path.exists(os.path.join(newpath, 'files')):
-            os.mkdir(os.path.join(newpath, 'files'))
+        if not os.path.exists(os.path.join(folder, 'files')):
+            os.mkdir(os.path.join(folder, 'files'))
 
         for key in attachments.keys():
             filename = get_secure_filename(attachments[key], key)
-            attach_path = os.path.join(newpath, 'files', filename)
+            attach_path = os.path.join(folder, 'files', filename)
             with open(attach_path, 'w') as stream:
                 stream.write(str(attachments[key]))
             files.append('files/' + filename)
@@ -294,3 +298,10 @@ def issue_to_json(issue, folder):
             separators=(',', ': ')))
 
     return files
+
+
+def get_secure_filename(attachment, filename):
+    ''' Hashes the file name, same as pagure '''
+    filename = '%s-%s' % (hashlib.sha256(attachment).hexdigest(),
+                          werkzeug.secure_filename(str(filename)))
+    return filename
