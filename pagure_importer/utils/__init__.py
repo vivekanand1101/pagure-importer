@@ -255,8 +255,8 @@ class Importer:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         ''' Delete the cloned repo where the commits were going '''
-        if os.path.exists(clone_repo_location):
-            shutil.rmtree(clone_repo_location)
+        if os.path.exists(self.clone_repo_location):
+            shutil.rmtree(self.clone_repo_location)
 
 
 def issue_to_json(issue, folder):

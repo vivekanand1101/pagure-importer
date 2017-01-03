@@ -6,7 +6,8 @@ import requests
 from base64 import b64decode
 from datetime import datetime
 from pagure_importer.utils import (
-    get_pagure_namespace, get_close_status, is_image, Importer)
+    get_pagure_namespace, get_close_status, is_image, Importer,
+    issue_to_json)
 from pagure_importer.utils.git import get_secure_filename
 from pagure_importer.utils.models import User, Issue, IssueComment
 
@@ -108,7 +109,7 @@ class TracImporter(Importer):
                     for attach_name in comments[key].attachment:
                         filename = get_secure_filename(
                             pagure_issue.attachment[attach_name], attach_name)
-                        url = '/%s/issue/raw/files/%s' % (project, filename)
+                        url = '/%s/issue/raw/files/%s' % (repo_name, filename)
                         if is_image(attach_name):
                             comments[key].comment += ('\n[![%s](%s)](%s)' %
                                                       (attach_name, url, url))
@@ -118,7 +119,7 @@ class TracImporter(Importer):
                 pagure_issue.comments.append(comments[key].to_json())
             click.echo('Updated ' + repo_name + ' with issue :' +
                        str(ticket_id) + '/' + str(tickets_id[-1]))
-            issue_to_json(obj, repo_folder)
+            issue_to_json(pagure_issue, repo_folder)
 
     def get_custom_fields_of_ticket(self, trac_ticket):
         ''' Given the trac ticket, it will return all the

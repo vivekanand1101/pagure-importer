@@ -2,9 +2,11 @@ import click
 from github import Github
 
 from pagure_importer.utils import (
-    models, gh_get_user_email, get_auth_token, Importer)
+    models, gh_get_user_email, get_auth_token, Importer, issue_to_json
+)
 from pagure_importer.utils.git import (
-    clone_repo, push_repo, update_git)
+    clone_repo, push_repo, update_git
+)
 from pagure_importer.utils.exceptions import (
     GithubRepoNotFound
 )
@@ -106,7 +108,9 @@ class GithubImporter(Importer):
 
             # comments on the issue
             comments = []
-            for comment in github_issue.get_comments():
+            github_comments = github_issue.get_comments()
+            n_comments = len(github_comments)
+            for idx, comment in enumerate(github_comments):
 
                 comment_user = comment.user
                 pagure_issue_comment_body = comment.body
@@ -143,4 +147,5 @@ class GithubImporter(Importer):
             # add all the comments to the issue object
             pagure_issue.comments = comments
 
+            click.echo('Updated issue %s out of %s' % (idx + 1, n_comments))
             issue_to_json(pagure_issue, repo_folder)

@@ -11,8 +11,7 @@ import json
 import hashlib
 import werkzeug
 
-from .utils import is_image, issue_to_json
-from repo import PagureRepo
+from pagure_importer.utils import is_image, issue_to_json
 
 
 def get_secure_filename(attachment, filename):
