@@ -7,8 +7,7 @@ from base64 import b64decode
 from datetime import datetime
 from pagure_importer.utils import (
     get_pagure_namespace, get_close_status, is_image, Importer)
-from pagure_importer.utils.git import (
-    clone_repo, get_secure_filename, push_repo, update_git)
+from pagure_importer.utils.git import get_secure_filename
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
@@ -80,10 +79,19 @@ class TracImporter(Importer):
                 custom_fields.append(current_field)
         return custom_fields
 
-    def import_issues(self, trac_query='max=0&order=id'):
-        ''' Import issues from trac instance using jsonrpc API '''
+    def import_issues(self, repo_name, repo_folder,
+                      trac_query='max=0&order=id'):
+        ''' Queries the trac instance via its jsonrpc API and convert the
+        tickets into JSON blob to be imported into pagure's ticket git repo.
 
-        newpath, new_repo = clone_repo(self.repo_name, self.repo_folder)
+        :arg repo_name: the name of the repository
+        :arg repo_folder: the folder in which is the repository
+        :kwarg trac_query: the query to call trac with in order to retrieve
+            all the tickets.
+            Defaults to ``max=0&order=id``
+
+        '''
+
         tickets_id = self.request('ticket.query', trac_query)
 
         for ticket_id in tickets_id:
@@ -96,7 +104,6 @@ class TracImporter(Importer):
                 if comments[key].attachment is not None and \
                    any(attachment in comments[key].attachment for attachment in
                        pagure_issue.attachment):
-                    project = get_pagure_namespace(self.repo_folder, self.repo_name)
 
                     for attach_name in comments[key].attachment:
                         filename = get_secure_filename(
@@ -109,11 +116,9 @@ class TracImporter(Importer):
                             comments[key].comment += ('\n[%s](%s)' %
                                                       (attach_name, url))
                 pagure_issue.comments.append(comments[key].to_json())
-            # update the local git repo
-            new_repo = update_git(pagure_issue, newpath, new_repo)
-            click.echo('Updated ' + self.repo_name + ' with issue :' +
+            click.echo('Updated ' + repo_name + ' with issue :' +
                        str(ticket_id) + '/' + str(tickets_id[-1]))
-        push_repo(newpath, new_repo)
+            issue_to_json(obj, repo_folder)
 
     def get_custom_fields_of_ticket(self, trac_ticket):
         ''' Given the trac ticket, it will return all the

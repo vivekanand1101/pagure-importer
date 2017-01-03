@@ -226,8 +226,7 @@ def get_pagure_namespace(repo_folder, repo_name):
     remote_path = urlparse(remote_url).path
     remote_path = remote_path.replace('.git', '')
     namespace_list = remote_path.split('/')[2:]
-    namespace = '/'.join(namespace_list)
-    return namespace
+    return '/'.join(namespace_list)
 
 
 def is_image(filename):
@@ -248,10 +247,50 @@ class Importer:
         self.password = password
         self.repo_name = repo_name
         self.repo_folder = repo_folder
+        self.clone_repo_location = os.path.join(
+            repo_folder, 'clone-' + repo_name)
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         ''' Delete the cloned repo where the commits were going '''
-        shutil.rmtree(os.path.join(self.repo_folder, 'clone-' + self.repo_name))
+        if os.path.exists(clone_repo_location):
+            shutil.rmtree(clone_repo_location)
+
+
+def issue_to_json(issue, folder):
+    ''' Write the specified issue as a JSON blob on the specified folder.
+    Returns a list of all the files changed or created.
+
+    :arg issue: a
+
+    '''
+    file_path = os.path.join(folder, issue.uid)
+    files = []
+
+    # Are we adding files
+    added = False
+    if not os.path.exists(file_path):
+        files.append(issue.uid)
+
+    # If we have attachments
+    attachments = issue.attachment
+    if attachments:
+        if not os.path.exists(os.path.join(newpath, 'files')):
+            os.mkdir(os.path.join(newpath, 'files'))
+
+        for key in attachments.keys():
+            filename = get_secure_filename(attachments[key], key)
+            attach_path = os.path.join(newpath, 'files', filename)
+            with open(attach_path, 'w') as stream:
+                stream.write(str(attachments[key]))
+            files.append('files/' + filename)
+
+    # Write down what changed
+    with open(file_path, 'w') as stream:
+        stream.write(json.dumps(
+            issue.to_json(), sort_keys=True, indent=4,
+            separators=(',', ': ')))
+
+    return files

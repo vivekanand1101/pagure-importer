@@ -10,7 +10,10 @@ import pygit2
 import json
 import hashlib
 import werkzeug
-from pagure_importer.utils import is_image
+
+from .utils import is_image, issue_to_json
+from repo import PagureRepo
+
 
 def get_secure_filename(attachment, filename):
     ''' Hashes the file name, same as pagure '''
@@ -46,47 +49,15 @@ def push_repo(newpath, new_repo):
     ori_remote.push([refname])
 
 
-def update_git(obj, newpath, new_repo):
+def update_git(newpath, new_repo):
     """ Update the given issue in its git.
     This method forks the provided repo, add/edit the issue whose file name
     is defined by the uid field of the issue and if there are additions/
     changes commit them and push them back to the original repo.
     """
-    file_path = os.path.join(newpath, obj.uid)
 
     # Get the current index
     index = new_repo.index
-
-    # Are we adding files
-    added = False
-    if not os.path.exists(file_path):
-        added = True
-
-    # If we have attachments
-    attachments = obj.attachment
-    if attachments:
-        if not os.path.exists(os.path.join(newpath, 'files')):
-            os.mkdir(os.path.join(newpath, 'files'))
-
-        for key in attachments.keys():
-            filename = get_secure_filename(attachments[key], key)
-            attach_path = os.path.join(newpath, 'files', filename)
-            # Try decoding Bytes to UTF-8
-            try:
-                with open(attach_path, 'w') as stream:
-                    stream.write(attachments[key].decode())
-            # If it fails write the data as binary
-            except UnicodeDecodeError:
-                with open(attach_path, 'wb') as stream:
-                    stream.write(attachments[key])
-
-            index.add('files/' + filename)
-
-    # Write down what changed
-    with open(file_path, 'w') as stream:
-        stream.write(json.dumps(
-            obj.to_json(), sort_keys=True, indent=4,
-            separators=(',', ': ')))
 
     # Retrieve the list of files that changed
     diff = new_repo.diff()

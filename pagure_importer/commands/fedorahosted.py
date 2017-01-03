@@ -1,8 +1,10 @@
 import click
 import pagure_importer
 from pagure_importer.app import app, REPO_PATH
-from pagure_importer.utils import importer_trac
+from pagure_importer.utils import importer_trac, get_pagure_namespace
 from pagure_importer.utils.fas import FASclient
+
+import pagure_importer.utils.git as gitutils
 
 
 @app.command()
@@ -26,6 +28,8 @@ def fedorahosted(project_url, tags, private, username, password, offset):
         repo_index = click.prompt('Choose the import destination repo ',
                                   default=1)
         repo_name = repos[int(repo_index)-1]
+        newpath, new_repo = gitutils.clone_repo(repo_name, REPO_PATH)
+        project = get_pagure_namespace(REPO_PATH, repo_name)
         with importer_trac.TracImporter(project_url=project_url,
                                         username=username,
                                         password=password,
@@ -36,6 +40,9 @@ def fedorahosted(project_url, tags, private, username, password, offset):
                                         tags=tags,
                                         private=private) as trac_importer:
 
-            trac_importer.import_issues()
+            trac_importer.import_issues(project, REPO_PATH)
+        # update the local git repo
+        new_repo = gitutils.update_git(newpath, new_repo)
+        gitutils.push_delete_repo(newpath, new_repo)
     else:
         click.echo('No ticket repository found. Use pgimport clone command')
