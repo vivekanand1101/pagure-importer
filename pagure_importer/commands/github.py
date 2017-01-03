@@ -15,6 +15,8 @@ from pagure_importer.utils import (
 @click.option('--project',
               prompt='Enter github project name like pypingou/pagure',
               help="Github project like pypingou/pagure")
+@click.option('--nopush', is_flag=True,
+              help="Do not push the result of pagure-importer back")
 def github(username, password, project):
     gen_json = click.confirm(
         "Do you want to generate jsons for project's contributers"
@@ -50,8 +52,9 @@ def github(username, password, project):
 
             # update the local git repo
             new_repo = update_git(pagure_issue, newpath, new_repo)
-            push_delete_repo(newpath, new_repo)
 
+            if not nopush:
+                push_delete_repo(newpath, new_repo)
         else:
             click.echo(
                 'No ticket repository found. Use pgimport clone command')

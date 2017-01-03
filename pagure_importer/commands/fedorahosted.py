@@ -18,8 +18,10 @@ import pagure_importer.utils.git as gitutils
               help="FAS password")
 @click.option('--offset', default=0,
               help='Number of issue in pagure before import')
-def fedorahosted(project_url, tags, private, username, password, offset):
-    project_url = project_url.rstrip('/')
+@click.option('--nopush', is_flag=True,
+              help="Do not push the result of pagure-importer back")
+def fedorahosted(
+        project_url, tags, private, username, password, offset, nopush):
     fasclient = FASclient(username, password,
                           'https://admin.fedoraproject.org/accounts')
     project_url += '/login/jsonrpc'
@@ -43,6 +45,7 @@ def fedorahosted(project_url, tags, private, username, password, offset):
             trac_importer.import_issues(project, REPO_PATH)
         # update the local git repo
         new_repo = gitutils.update_git(newpath, new_repo)
-        gitutils.push_delete_repo(newpath, new_repo)
+        if not nopush:
+            gitutils.push_delete_repo(newpath, new_repo)
     else:
         click.echo('No ticket repository found. Use pgimport clone command')
