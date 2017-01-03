@@ -38,23 +38,13 @@ class GithubImporter(Importer):
         if assignee is not None:
             return assignee.to_json()
 
-    def import_issues(self, status='all'):
-        ''' Imports the issues on github for
-        the given project
+    def import_issues(self, repo, repo_folder, status='all'):
+        ''' Imports the issues on github for the given project
         '''
-        repo = self.github.get_repo(self.github_project_name)
-        try:
-            repo_name = repo.name
-        except:
-            raise GithubRepoNotFound(
-                    'Repo not found, project name wrong')
 
-        newpath, new_repo = clone_repo(self.repo_name, self.repo_folder)
         repo_issues = repo.get_issues(state=status)
-        issues_length = 0
-        for issue in repo_issues:
-            issues_length += 1
-        for idx, github_issue in enumerate(repo_issues):
+
+        for github_issue in repo_issues:
 
             # title of the issue
             pagure_issue_title = github_issue.title
@@ -153,7 +143,4 @@ class GithubImporter(Importer):
             # add all the comments to the issue object
             pagure_issue.comments = comments
 
-            # update the local git repo
-            new_repo = update_git(pagure_issue, newpath, new_repo)
-            click.echo('Updated issue %s out of %s' % (idx+1, issues_length))
-        push_repo(newpath, new_repo)
+            issue_to_json(pagure_issue, repo_folder)

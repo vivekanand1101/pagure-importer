@@ -30,13 +30,28 @@ def github(username, password, project):
                 'Choose the import destination repo', default=1)
             repo_name = repos[int(repo_index)-1]
 
+
+            newpath, new_repo = clone_repo(repo_path, repo_folder)
+
             with GithubImporter(username=username,
                                 password=password,
                                 project=project,
                                 repo_name=repo_name,
                                 repo_folder=REPO_PATH) as github_importer:
 
-                github_importer.import_issues()
+                repo = github_importer.github.get_repo(
+                    github_importer.github_project_name)
+                try:
+                    repo_name = repo.name
+                except:
+                    raise GithubRepoNotFound(
+                            'Repo not found, project name wrong')
+                github_importer.import_issues(repo, new_repo)
+
+            # update the local git repo
+            new_repo = update_git(pagure_issue, newpath, new_repo)
+            push_delete_repo(newpath, new_repo)
+
         else:
             click.echo(
                 'No ticket repository found. Use pgimport clone command')
