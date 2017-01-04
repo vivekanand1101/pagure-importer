@@ -37,7 +37,7 @@ def push_repo(newpath, new_repo):
     ori_remote.push([refname])
 
 
-def update_git(newpath, new_repo):
+def update_git(newpath, new_repo, commit_message):
     """ Update the given issue in its git.
     This method forks the provided repo, add/edit the issue whose file name
     is defined by the uid field of the issue and if there are additions/
@@ -57,13 +57,11 @@ def update_git(newpath, new_repo):
             files.append(p.delta.new_file.path)
 
     # Add the changes to the index
-    if added:
-        index.add(obj.uid)
     for filename in files:
         index.add(filename)
 
     # If not change, return
-    if not files and not added:
+    if not files:
         shutil.rmtree(newpath)
         return
 
@@ -86,7 +84,7 @@ def update_git(newpath, new_repo):
         'refs/heads/master',
         author,
         author,
-        'Updated %s %s: %s' % (obj.isa, obj.uid, obj.title),
+        commit_message,
         new_repo.index.write_tree(),
         parents)
     index.write()

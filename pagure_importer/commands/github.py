@@ -51,7 +51,11 @@ def github(username, password, project):
                 github_importer.import_issues(repo, new_repo)
 
             # update the local git repo
-            new_repo = update_git(pagure_issue, newpath, new_repo)
+            new_repo = update_git(
+                newpath,
+                new_repo
+                commit_message='Imported issues from the github project: %s' %
+                    repo_name)
 
             if not nopush:
                 push_delete_repo(newpath, new_repo)
