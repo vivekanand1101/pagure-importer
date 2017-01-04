@@ -19,14 +19,13 @@ def clone_repo(repo_name, repo_folder):
 
     # Get the fork
     repopath = os.path.join(repo_folder, repo_name)
-
     # Clone the repo into a temp folder
     newpath = os.path.join(repo_folder, 'clone-' + repo_name)
     new_repo = pygit2.clone_repository(repopath, newpath)
     return (newpath, new_repo)
 
 
-def push_repo(newpath, new_repo):
+def push_repo(new_repo):
     ''' Push the changes to the originally cloned repo from pagure '''
 
     # Push to origin
@@ -37,7 +36,7 @@ def push_repo(newpath, new_repo):
     ori_remote.push([refname])
 
 
-def update_git(newpath, new_repo, commit_message):
+def update_git(new_repo, commit_message):
     """ Update the given issue in its git.
     This method forks the provided repo, add/edit the issue whose file name
     is defined by the uid field of the issue and if there are additions/
@@ -46,24 +45,7 @@ def update_git(newpath, new_repo, commit_message):
 
     # Get the current index
     index = new_repo.index
-
-    # Retrieve the list of files that changed
-    diff = new_repo.diff()
-    files = []
-    for p in diff:
-        if hasattr(p, 'new_file_path'):
-            files.append(p.new_file_path)
-        elif hasattr(p, 'delta'):
-            files.append(p.delta.new_file.path)
-
-    # Add the changes to the index
-    for filename in files:
-        index.add(filename)
-
-    # If not change, return
-    if not files:
-        shutil.rmtree(newpath)
-        return
+    index.add_all()
 
     # See if there is a parent to this commit
     parent = None
