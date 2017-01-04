@@ -43,12 +43,11 @@ def fedorahosted(
                                         private=private) as trac_importer:
 
             trac_importer.import_issues(project, REPO_PATH)
-        # update the local git repo
-        new_repo = gitutils.update_git(
-            newpath, new_repo,
-            commit_message='Imported issues from fedorahosted project: %s' %
-                repo_name)
-        if not nopush:
-            gitutils.push_delete_repo(newpath, new_repo)
+            # update the local git repo
+            new_repo = gitutils.update_git(
+                new_repo,
+                commit_message='Imported issues from fedorahosted project: %s' % repo_name)
+            if not nopush:
+                gitutils.push_repo(new_repo)
     else:
         click.echo('No ticket repository found. Use pgimport clone command')

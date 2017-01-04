@@ -6,6 +6,10 @@ from pagure_importer.utils import (
     gh_get_contributors, gh_get_issue_users, gh_assemble_users,
 )
 
+import pagure_importer.utils.git as gitutils
+from pagure_importer.utils.exceptions import (
+    GithubRepoNotFound
+)
 
 @app.command()
 @click.option('--username', prompt='Enter your Github Username',
@@ -17,7 +21,7 @@ from pagure_importer.utils import (
               help="Github project like pypingou/pagure")
 @click.option('--nopush', is_flag=True,
               help="Do not push the result of pagure-importer back")
-def github(username, password, project):
+def github(username, password, project, nopush):
     gen_json = click.confirm(
         "Do you want to generate jsons for project's contributers"
         " and issue commentors?")
@@ -32,8 +36,7 @@ def github(username, password, project):
                 'Choose the import destination repo', default=1)
             repo_name = repos[int(repo_index)-1]
 
-
-            newpath, new_repo = clone_repo(repo_path, repo_folder)
+            newpath, new_repo = gitutils.clone_repo(repo_name, REPO_PATH)
 
             with GithubImporter(username=username,
                                 password=password,
@@ -50,15 +53,13 @@ def github(username, password, project):
                             'Repo not found, project name wrong')
                 github_importer.import_issues(repo, new_repo)
 
-            # update the local git repo
-            new_repo = update_git(
-                newpath,
-                new_repo
-                commit_message='Imported issues from the github project: %s' %
-                    repo_name)
+                # update the local git repo
+                new_repo = gitutils.update_git(
+                    new_repo,
+                    commit_message='Imported issues from the github project: %s' % repo_name)
 
-            if not nopush:
-                push_delete_repo(newpath, new_repo)
+                if not nopush:
+                    gitutils.push_repo(new_repo)
         else:
             click.echo(
                 'No ticket repository found. Use pgimport clone command')
