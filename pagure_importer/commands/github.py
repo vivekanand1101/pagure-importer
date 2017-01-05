@@ -42,7 +42,8 @@ def github(username, password, project, nopush):
                                 password=password,
                                 project=project,
                                 repo_name=repo_name,
-                                repo_folder=REPO_PATH) as github_importer:
+                                repo_folder=REPO_PATH,
+                                nopush=nopush) as github_importer:
 
                 repo = github_importer.github.get_repo(
                     github_importer.github_project_name)

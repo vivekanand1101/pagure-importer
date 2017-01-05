@@ -40,7 +40,8 @@ def fedorahosted(
                                         repo_folder=REPO_PATH,
                                         fasclient=fasclient,
                                         tags=tags,
-                                        private=private) as trac_importer:
+                                        private=private,
+                                        nopush=nopush) as trac_importer:
 
             trac_importer.import_issues(project, REPO_PATH)
             # update the local git repo

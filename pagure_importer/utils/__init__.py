@@ -246,13 +246,14 @@ def is_image(filename):
 class Importer:
     ''' Common Class for Github and Feodrahosted importer'''
 
-    def __init__(self, username, password, repo_name, repo_folder):
+    def __init__(self, username, password, repo_name, repo_folder, nopush):
         self.username = username
         self.password = password
         self.repo_name = repo_name
         self.repo_folder = repo_folder
         self.clone_repo_location = os.path.join(
             repo_folder, 'clone-' + repo_name)
+        self.nopush = nopush
 
     def __enter__(self):
         return self
@@ -260,7 +261,8 @@ class Importer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         ''' Delete the cloned repo where the commits were going '''
         if os.path.exists(self.clone_repo_location):
-            shutil.rmtree(self.clone_repo_location)
+            if not self.nopush:
+                shutil.rmtree(self.clone_repo_location)
 
 
 def issue_to_json(issue, folder):
