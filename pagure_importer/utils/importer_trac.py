@@ -6,8 +6,8 @@ import requests
 from base64 import b64decode
 from datetime import datetime
 from pagure_importer.utils import (
-    get_pagure_namespace, get_close_status, is_image, Importer,
-    issue_to_json, get_secure_filename)
+    get_close_status, is_image, Importer, issue_to_json,
+    get_secure_filename)
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
@@ -24,9 +24,9 @@ class TracImporter(Importer):
     ''' Pagure importer for trac instance '''
 
     def __init__(self, project_url, username, password, offset, repo_name,
-                 repo_folder, fasclient=None, tags=False, private=False):
+                 repo_folder, nopush, fasclient=None, tags=False, private=False):
         ''' Instantiate a TracImporter object '''
-        Importer.__init__(self, username, password, repo_name, repo_folder)
+        Importer.__init__(self, username, password, repo_name, repo_folder, nopush)
         self.url = project_url
         self.fas = fasclient
         self.tags = tags
@@ -59,7 +59,6 @@ class TracImporter(Importer):
                 sys.exit(1)
 
         return resp['result']
-
 
     def get_custom_fields(self):
         ''' Queries the fedorahosted api to get all ticket fields

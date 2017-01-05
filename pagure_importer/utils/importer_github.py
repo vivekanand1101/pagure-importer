@@ -4,21 +4,15 @@ from github import Github
 from pagure_importer.utils import (
     models, gh_get_user_email, get_auth_token, Importer, issue_to_json
 )
-from pagure_importer.utils.git import (
-    clone_repo, push_repo, update_git
-)
-from pagure_importer.utils.exceptions import (
-    GithubRepoNotFound
-)
 
 
 class GithubImporter(Importer):
     ''' Imports from Github using PyGithub and libpagure '''
 
-    def __init__(self, username, password, project, repo_name, repo_folder):
+    def __init__(self, username, password, project, repo_name, repo_folder, nopush):
         ''' Instantiate GithubImporter object '''
 
-        Importer.__init__(self, username, password, repo_name, repo_folder)
+        Importer.__init__(self, username, password, repo_name, repo_folder, nopush)
         self.github_project_name = project
         self.github = Github(username, password)
 
@@ -40,7 +34,7 @@ class GithubImporter(Importer):
         if assignee is not None:
             return assignee.to_json()
 
-    def import_issues(self, repo, repo_folder, status='all'):
+    def import_issues(self, repo, status='all'):
         ''' Imports the issues on github for the given project
         '''
 
