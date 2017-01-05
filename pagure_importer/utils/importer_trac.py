@@ -118,7 +118,7 @@ class TracImporter(Importer):
                 pagure_issue.comments.append(comments[key].to_json())
             click.echo('Updated ' + repo_name + ' with issue :' +
                        str(ticket_id) + '/' + str(tickets_id[-1]))
-            issue_to_json(pagure_issue, repo_folder)
+            issue_to_json(pagure_issue, self.clone_repo_location)
 
     def get_custom_fields_of_ticket(self, trac_ticket):
         ''' Given the trac ticket, it will return all the

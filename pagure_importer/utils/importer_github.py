@@ -148,4 +148,4 @@ class GithubImporter(Importer):
             pagure_issue.comments = comments
 
             click.echo('Updated issue %s out of %s' % (idx + 1, n_comments))
-            issue_to_json(pagure_issue, repo_folder)
+            issue_to_json(pagure_issue, self.clone_repo_location)
