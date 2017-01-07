@@ -43,7 +43,7 @@ def fedorahosted(
                                         private=private,
                                         nopush=nopush) as trac_importer:
 
-            trac_importer.import_issues(project, REPO_PATH)
+            trac_importer.import_issues(project)
             # update the local git repo
             new_repo = gitutils.update_git(
                 new_repo,

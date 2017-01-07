@@ -52,7 +52,7 @@ def github(username, password, project, nopush):
                 except:
                     raise GithubRepoNotFound(
                             'Repo not found, project name wrong')
-                github_importer.import_issues(repo, new_repo)
+                github_importer.import_issues(repo)
 
                 # update the local git repo
                 new_repo = gitutils.update_git(

@@ -78,8 +78,7 @@ class TracImporter(Importer):
                 custom_fields.append(current_field)
         return custom_fields
 
-    def import_issues(self, repo_name, repo_folder,
-                      trac_query='max=0&order=id'):
+    def import_issues(self, repo_name, trac_query='max=0&order=id'):
         ''' Queries the trac instance via its jsonrpc API and convert the
         tickets into JSON blob to be imported into pagure's ticket git repo.
 

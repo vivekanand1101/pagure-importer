@@ -39,8 +39,9 @@ class GithubImporter(Importer):
         '''
 
         repo_issues = repo.get_issues(state=status)
+        issues_length = sum(1 for issue in repo_issues)
 
-        for github_issue in repo_issues:
+        for idx, github_issue in enumerate(repo_issues):
 
             # title of the issue
             pagure_issue_title = github_issue.title
@@ -102,9 +103,7 @@ class GithubImporter(Importer):
 
             # comments on the issue
             comments = []
-            github_comments = github_issue.get_comments()
-            n_comments = len(github_comments)
-            for idx, comment in enumerate(github_comments):
+            for comment in github_issue.get_comments():
 
                 comment_user = comment.user
                 pagure_issue_comment_body = comment.body
@@ -141,5 +140,5 @@ class GithubImporter(Importer):
             # add all the comments to the issue object
             pagure_issue.comments = comments
 
-            click.echo('Updated issue %s out of %s' % (idx + 1, n_comments))
+            click.echo('Updated %s with issue : %s/%s' % (self.repo_name, idx + 1, issues_length))
             issue_to_json(pagure_issue, self.clone_repo_location)
