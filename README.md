@@ -86,6 +86,7 @@ To add some new close status just edit the config file as follow. Where ```Foo``
         --password TEXT FAS password
         --offset INTEGER Number of issue in pagure before import
         --help  Show this message and exit.
+        --nopush Do not push the result of pagure-importer back
 
 
     $ pgimport fedorahosted https://fedorahosted.org/foobar --tags
@@ -106,6 +107,13 @@ To add some new close status just edit the config file as follow. Where ```Foo``
 
    This command will run the import using the username and password provided in the command
    line without prompting the user. This is usefull to use pgimport in a script.
+
+    $ pgimport fedorahosted https://fedorahosted.org/foobar --nopush
+
+   This command will not push the temporary cloned repository where the importer creates the json
+   representation of the issues to import. This can be used to process the issues using the json files
+   before running the import.
+   Default location of the cloned repository is under /tmp/clone-foobar.git
 
 3) The push command can be used to push a clone pagure ticket repo back to pagure.
 
