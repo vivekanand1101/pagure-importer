@@ -3,11 +3,12 @@ import re
 import time
 import click
 import requests
+import shutil
+import os
 from base64 import b64decode
 from datetime import datetime
 from pagure_importer.utils import (
-    get_close_status, is_image, Importer, issue_to_json,
-    get_secure_filename)
+    get_close_status, is_image, issue_to_json, get_secure_filename)
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
@@ -20,13 +21,19 @@ def to_timestamp(tm):
     return ts
 
 
-class TracImporter(Importer):
+class TracImporter(object):
     ''' Pagure importer for trac instance '''
 
     def __init__(self, project_url, username, password, offset, repo_name,
                  repo_folder, nopush, fasclient=None, tags=False, private=False):
         ''' Instantiate a TracImporter object '''
-        Importer.__init__(self, username, password, repo_name, repo_folder, nopush)
+        self.username = username
+        self.password = password
+        self.repo_name = repo_name
+        self.repo_folder = repo_folder
+        self.clone_repo_location = os.path.join(
+            repo_folder, 'clone-' + repo_name)
+        self.nopush = nopush
         self.url = project_url
         self.fas = fasclient
         self.tags = tags
@@ -36,6 +43,15 @@ class TracImporter(Importer):
                              emails=['some@body.com'])
         self.reqid = 0
         self.custom_fields = self.get_custom_fields()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        ''' Delete the cloned repo where the commits were going '''
+        if os.path.exists(self.clone_repo_location):
+            if not self.nopush:
+                shutil.rmtree(self.clone_repo_location)
 
     def request(self, method, *args):
         ''' Common method for querying trac '''
