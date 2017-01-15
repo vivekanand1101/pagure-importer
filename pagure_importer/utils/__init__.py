@@ -267,8 +267,14 @@ def issue_to_json(issue, folder):
         for key in attachments.keys():
             filename = get_secure_filename(attachments[key], key)
             attach_path = os.path.join(folder, 'files', filename)
-            with open(attach_path, 'w') as stream:
-                stream.write(str(attachments[key]))
+            # Try decoding Bytes to UTF-8
+            try:
+                with open(attach_path, 'w') as stream:
+                    stream.write(attachments[key].decode())
+            # If it fails write the data as binary
+            except UnicodeDecodeError:
+                with open(attach_path, 'wb') as stream:
+                    stream.write(attachments[key])
             files.append('files/' + filename)
 
     # Write down what changed
