@@ -146,8 +146,10 @@ class TracImporter(object):
                 pagure_field = {}
                 pagure_field['name'] = field.get('name')
                 pagure_field['key_type'] = field.get('key_type')
-                pagure_field['value'] = trac_ticket.get(pagure_field['name'])
-                pagure_fields.append(pagure_field)
+                pagure_field['value'] = trac_ticket.get(
+                                    pagure_field['name'], "").strip()
+                if pagure_field['value']:
+                    pagure_fields.append(pagure_field)
         return pagure_fields
 
     def create_issue(self, ticket_id):
