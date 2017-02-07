@@ -5,7 +5,7 @@ CLI tool for importing issues etc. from different sources like github to pagure
 ---
 
 #### In a Virtual Environment
-*  Install it using ```pip``` . ```pip install pagure_importer```
+*  Install it using ```pip``` . ```python3 -m pip install pagure_importer```
 
 #### Using COPR package
 *  Install it using [copr](https://copr.fedorainfracloud.org/coprs/cverna/pagure-importer/).
