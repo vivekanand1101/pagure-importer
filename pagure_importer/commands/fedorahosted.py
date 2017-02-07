@@ -24,6 +24,8 @@ def fedorahosted(
         project_url, tags, private, username, password, offset, nopush):
     fasclient = FASclient(username, password,
                           'https://admin.fedoraproject.org/accounts')
+    if project_url.endswith('.git'):
+        project_url = project_url.replace('.git', '')
     project_url += '/login/jsonrpc'
     repos = pagure_importer.utils.display_repo()
     if repos:
