@@ -17,8 +17,8 @@ CLI tool for importing issues etc. from different sources like github to pagure
 #### Using Docker
 * Build and run a container using the Dockerfile in this repository
 ```
-    $ docker build -t pgimport .
-    $ docker run -t -i -v ~/.ssh/:/root/.ssh/:Z /bin/bash
+    $ sudo docker build -t pgimport .
+    $ sudo docker run -v ~/.ssh/:/home/duser/.ssh/:Z -i -t pgimport /bin/bash
 ```
 * Inside the container you can use the pgimport command.
 
