@@ -288,8 +288,10 @@ class TracImporter(object):
             if comment[2] == 'comment' and comment[4] != '':
                 if ts in comments:
                     attachment = comments[ts].attachment
+                    changes = comments[ts].changes
                 else:
                     attachment = []
+                    changes = {}
 
                 pagure_issue_comment_body = comment[4]
                 pagure_issue_comment_created_at = ts
@@ -301,6 +303,7 @@ class TracImporter(object):
                     comment=pagure_issue_comment_body,
                     date_created=pagure_issue_comment_created_at,
                     attachment=attachment,
+                    changes=changes,
                     user=pagure_issue_comment_user.to_json())
 
             elif comment[2] == 'attachment':
@@ -311,6 +314,20 @@ class TracImporter(object):
                     comments[ts] = IssueComment(
                         id=None,
                         comment='attachment',
+                        date_created=ts,
+                        attachment=[comment[4]],
+                        user=pagure_issue_comment_user.to_json())
+
+            elif comment[2] != 'comment':  # We exclude the (comment, nr, )
+                change = (comment[3], comment[4])
+                if ts in comments:
+                    comments[ts].changes[comment[2]] = change
+                else:
+                    pagure_issue_comment_user = self.get_comment_user(comment)
+                    comments[ts] = IssueComment(
+                        id=None,
+                        comment='Fields changed',
+                        changes={comment[2]: change},
                         date_created=ts,
                         attachment=[comment[4]],
                         user=pagure_issue_comment_user.to_json())

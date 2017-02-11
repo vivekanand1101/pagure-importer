@@ -63,7 +63,8 @@ class IssueComment():
 
     def __init__(
             self, id, comment, date_created,
-            user, attachment, parent=None, edited_on=None, editor=None):
+            user, attachment, parent=None, edited_on=None, editor=None,
+            changes=None):
 
         self.id = id
         self.comment = comment
@@ -73,6 +74,9 @@ class IssueComment():
         self.attachment = attachment
         self.edited_on = edited_on
         self.editor = editor
+        self.changes = changes
+        if not changes:
+            self.changes = {}
 
     def to_json(self):
         ''' Returns a dictionary representation of the issue. '''
@@ -86,6 +90,13 @@ class IssueComment():
             'edited_on': self.edited_on if self.edited_on else None,
             'editor': self.editor or None
         }
+
+        if len(self.changes) > 0:
+            ctext = '\n'
+            for change in self.changes:
+                ctext += '\n%s: %s => %s' % (change, self.changes[change][0],
+                                             self.changes[change][1])
+            output['comment'] += ctext
 
         return output
 
