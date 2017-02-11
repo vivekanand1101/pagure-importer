@@ -12,6 +12,15 @@ from pagure_importer.utils import (
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
+# These are fields that are in a standard Trac setup, but we handle them like
+# custom fields, since they're not in Pagure natively
+STANDARD_CUSTOM_FIELDS = [
+    'type',
+    'component',
+    'version',
+]
+
+
 def to_timestamp(tm):
     ''' Convert to timestamp which can be jsonified '''
 
@@ -84,7 +93,8 @@ class TracImporter(object):
         all_ticket_fields = self.request('ticket.getTicketFields')
         custom_fields = []
         for field in all_ticket_fields:
-            if field.get('custom') is True:
+            if field.get('custom') is True or \
+                    field['name'] in STANDARD_CUSTOM_FIELDS:
                 current_field = {}
                 current_field['name'] = field['name']
                 key_type = 'text'
@@ -176,6 +186,7 @@ class TracImporter(object):
 
         pagure_custom_fields = self.get_custom_fields_of_ticket(trac_ticket)
         pagure_issue_title = trac_ticket['summary']
+        pagure_issue_priority = trac_ticket['priority']
 
         pagure_issue_content = trac_ticket['description']
         if pagure_issue_content == '':
@@ -225,6 +236,7 @@ class TracImporter(object):
         pagure_issue = Issue(
             id=ticket_id + self.offset,
             title=pagure_issue_title,
+            priority=pagure_issue_priority,
             content=pagure_issue_content,
             status=issue_status,
             close_status=close_status,

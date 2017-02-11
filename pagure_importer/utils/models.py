@@ -9,7 +9,7 @@ class Issue():
             self, id, title, content,
             status, date_created, user, private, attachment, tags,
             depends, blocks, assignee, close_status, comments=None,
-            milestone=None, custom_fields=None):
+            milestone=None, custom_fields=None, priority=None):
 
         self.id = id
         self.title = title
@@ -28,6 +28,7 @@ class Issue():
         self.uid = uuid.uuid4().hex
         self.milestone = milestone
         self.custom_fields = custom_fields if custom_fields else []
+        self.priority = priority
 
     def to_json(self):
         ''' Returns a dictionary representation of the issue.
@@ -49,6 +50,7 @@ class Issue():
             'comments': self.comments,
             'milestone': self.milestone,
             'custom_fields': self.custom_fields,
+            'priority': self.priority
         }
 
         return output
