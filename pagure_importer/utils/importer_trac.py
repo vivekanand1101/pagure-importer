@@ -12,6 +12,15 @@ from pagure_importer.utils import (
 from pagure_importer.utils.models import User, Issue, IssueComment
 
 
+PRIORITY_TO_NR = {
+    'blocker': 1,
+    'critical': 2,
+    'major': 3,
+    'minor': 4,
+    'trivial': 5
+}
+
+
 # These are fields that are in a standard Trac setup, but we handle them like
 # custom fields, since they're not in Pagure natively
 STANDARD_CUSTOM_FIELDS = [
@@ -52,6 +61,7 @@ class TracImporter(object):
                              emails=['some@body.com'])
         self.reqid = 0
         self.custom_fields = []
+        self.lists_to_create = {}
 
     def __enter__(self):
         return self
@@ -92,6 +102,7 @@ class TracImporter(object):
 
         all_ticket_fields = self.request('ticket.getTicketFields')
         custom_fields = []
+        priorities = {}
         for field in all_ticket_fields:
             if field.get('custom') is True or \
                     field['name'] in STANDARD_CUSTOM_FIELDS:
@@ -100,9 +111,14 @@ class TracImporter(object):
                 key_type = 'text'
                 if field['type'] == 'checkbox':
                     key_type = 'boolean'
+                elif field['type'] == 'select':
+                    key_type = 'list'
+                    self.lists_to_create[field['name']] = ','.join(field['options'])
                 current_field['key_type'] = key_type
                 custom_fields.append(current_field)
-        return custom_fields
+            elif field.get('name') == 'priority':
+                priorities = field['options']
+        return custom_fields, priorities
 
     def import_issues(self, repo_name, trac_query='max=0&order=id'):
         ''' Queries the trac instance via its jsonrpc API and convert the
@@ -117,7 +133,15 @@ class TracImporter(object):
         '''
 
         tickets_id = self.request('ticket.query', trac_query)
-        self.custom_fields = self.get_custom_fields()
+        self.custom_fields, priorities = self.get_custom_fields()
+
+        for priority in priorities:
+            if not priority in PRIORITY_TO_NR:
+                raise Exception('Priority %s does not have a value' % priority)
+
+        for lst in self.lists_to_create:
+            print('Create custom field list %s values %s' %
+                  (lst, self.lists_to_create[lst]))
 
         for ticket_id in tickets_id:
             pagure_issue = self.create_issue(ticket_id)
@@ -186,7 +210,7 @@ class TracImporter(object):
 
         pagure_custom_fields = self.get_custom_fields_of_ticket(trac_ticket)
         pagure_issue_title = trac_ticket['summary']
-        pagure_issue_priority = trac_ticket['priority']
+        pagure_issue_priority = PRIORITY_TO_NR[trac_ticket['priority']]
 
         pagure_issue_content = trac_ticket['description']
         if pagure_issue_content == '':
