@@ -14,14 +14,14 @@ from pagure_importer.utils.exceptions import (
 @app.command()
 @click.option('--username', prompt='Enter your Github Username',
               help="Github username")
-@click.option('--password', prompt=True, hide_input=True,
-              help="Github password")
 @click.option('--project',
               prompt='Enter github project name like pypingou/pagure',
               help="Github project like pypingou/pagure")
 @click.option('--nopush', is_flag=True,
               help="Do not push the result of pagure-importer back")
-def github(username, password, project, nopush):
+def github(username, project, nopush):
+    ''' Command to import from github '''
+    password = click.prompt("Github Password", hide_input=True)
     gen_json = click.confirm(
         "Do you want to generate jsons for project's contributers"
         " and issue commentors?")
