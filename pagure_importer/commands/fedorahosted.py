@@ -14,14 +14,15 @@ import pagure_importer.utils.git as gitutils
               is_flag=True)
 @click.option('--username', prompt="Enter your FAS Username",
               help="FAS username")
-@click.option('--password', prompt=True, hide_input=True,
-              help="FAS password")
 @click.option('--offset', default=0,
               help='Number of issue in pagure before import')
 @click.option('--nopush', is_flag=True,
               help="Do not push the result of pagure-importer back")
 def fedorahosted(
-        project_url, tags, private, username, password, offset, nopush):
+        project_url, tags, private, username, offset, nopush):
+    ''' For imports from fedorahosted '''
+
+    password = click.prompt("FAS password", hide_input=True)
     fasclient = FASclient(username, password,
                           'https://admin.fedoraproject.org/accounts')
     if project_url.endswith('.git'):
