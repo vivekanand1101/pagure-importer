@@ -10,8 +10,6 @@ from github import Github
 from pagure_importer.utils import (
     models, gh_get_user_email, get_auth_token, issue_to_json, get_secure_filename
 )
-from pagure_importer.utils.git import clone_repo
-from pagure_importer.utils.exceptions import GithubRepoNotFound
 
 
 class GithubImporter(object):
