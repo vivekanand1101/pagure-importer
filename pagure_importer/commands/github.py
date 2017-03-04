@@ -34,7 +34,7 @@ def github(username, project, nopush, pagure_project, status, gencsv):
     ''' For imports from github '''
 
     password = click.prompt("Github Password", hide_input=True)
-    pagure_project = pagure_project.rstrip('/').lstrip('/')
+    pagure_project = pagure_project.strip().strip('/')
     if gencsv:
         gh_get_contributors(username, password, project)
         gh_get_issue_users(username, password, project)
