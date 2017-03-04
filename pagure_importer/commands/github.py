@@ -17,7 +17,8 @@ from pagure_importer.utils.exceptions import (
 @click.option('--project',
               prompt='Enter github project name like pypingou/pagure',
               help="Github project like pypingou/pagure")
-@click.option('--status', default='all',
+@click.option('--status', type=click.Choice(['all', 'open', 'closed']),
+              default='all',
               help="Status of issue/PR to be imported(open/closed/all)")
 @click.option('--nopush', is_flag=True,
               help="Do not push the result of pagure-importer back")
