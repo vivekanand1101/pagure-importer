@@ -66,7 +66,6 @@ class GithubImporter(object):
         whole_body = comment.body
         attach_regex = '!\[.*\]\((.*)\)'
         attach_url_list = re.findall(attach_regex, whole_body)
-        print (attach_url_list)
         format_list = []
         for attach_url in attach_url_list:
             attach_name = attach_url.strip().rstrip('/').rsplit('/')[-1]
@@ -195,7 +194,6 @@ class GithubImporter(object):
             # add all the comments to the issue object and the attachments
             pagure_issue.comments = comments
             pagure_issue.attachment = pagure_attachments
-            print (pagure_attachments)
 
             click.echo('Updated %s with issue : %s/%s' % (self.repo_name, idx + 1, issues_length))
             issue_to_json(pagure_issue, self.clone_repo_location)
