@@ -55,6 +55,12 @@ class GithubImporter(object):
         ''' Imports the issues on github for the given project
         '''
 
+        status = status.lower()
+        if status not in ['all', 'open', 'closed']:
+            click.echo(
+                'Wrong value of status, Should be either of open/closed/all')
+            exit()
+
         repo_issues = repo.get_issues(state=status)
         issues_length = sum(1 for issue in repo_issues)
 

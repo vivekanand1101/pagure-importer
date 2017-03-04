@@ -17,9 +17,11 @@ from pagure_importer.utils.exceptions import (
 @click.option('--project',
               prompt='Enter github project name like pypingou/pagure',
               help="Github project like pypingou/pagure")
+@click.option('--status', default='all',
+              help="Status of issue/PR to be imported(open/closed/all)")
 @click.option('--nopush', is_flag=True,
               help="Do not push the result of pagure-importer back")
-def github(username, project, nopush):
+def github(username, project, nopush, status):
     ''' Command to import from github '''
     password = click.prompt("Github Password", hide_input=True)
     gen_json = click.confirm(
@@ -52,7 +54,7 @@ def github(username, project, nopush):
                 except:
                     raise GithubRepoNotFound(
                             'Repo not found, project name wrong')
-                github_importer.import_issues(repo)
+                github_importer.import_issues(repo, status=status)
 
                 # update the local git repo
                 new_repo = gitutils.update_git(
