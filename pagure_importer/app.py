@@ -6,6 +6,7 @@ REPO_PATH = tempfile.gettempdir()
 
 
 @click.group()
+@click.version_option()
 def app():
     pass
 
