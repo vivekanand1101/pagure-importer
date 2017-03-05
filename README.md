@@ -136,11 +136,23 @@ To add some new close status just edit the config file as follow. Where ```Foo``
 
    This will clone the pagure foobar repository into the default set /tmp directory as /tmp/foobar.git
 
-2) The github command can be used to import issues from a github project to pagure
+2) The gencsv option with github command can be used to generate csv containing username and email ids.
 
+    $ pgimport github  --gencsv
+
+    This command will generate a csv file ```assembled_users.csv``` for you where all the contributors
+    and issue commentors' username is given. A few of the email ids that pgimport could find from github
+    is also mentioned. This csv has to be filled with the email ids of the user because pagure needs
+    an email id for each user.
+
+3) Once the csv is filled:
+    $ pgimport github --import
+
+    or,
     $ pgimport github
 
-   This will ask few questions, just answer them and issues will be imported to /tmp/foobar.git repository.
+    Both will have same effect, this command will assume that you have the csv ready for use and will begin
+    importing issues from github to your local git repository.
 
 3) The push command can be used to push a clone pagure ticket repo back to pagure.
 
