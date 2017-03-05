@@ -56,12 +56,10 @@ class GithubImporter(object):
         if assignee is not None:
             return assignee.to_json()
 
-    def get_comment_body(self, comment, pagure_attachments):
-        ''' Return the comment body. Check if there is
-        an attachment, if so return the attachment as well '''
+    def _get_attachments(self, attach_regex, whole_body,
+                         pagure_attachments, is_image=True):
+        ''' Get the Attachment '''
 
-        whole_body = comment.body
-        attach_regex = '!\[.*\]\((.*)\)'
         attach_url_list = re.findall(attach_regex, whole_body)
         format_list = []
         for attach_url in attach_url_list:
@@ -71,14 +69,60 @@ class GithubImporter(object):
             if response.status_code == 200:
                 pagure_attachments[attach_name] = response.content
                 filename = get_secure_filename(
-                        pagure_attachments[attach_name], attach_name)
+                    pagure_attachments[attach_name], attach_name)
                 url = '/%s/issue/raw/files/%s' % (self.pagure_project, filename)
             else:
                 url = '#Attachment Unavailable'
             format_list.append(url)
-            format_list.append(url)
+
+            # the difference is because of md
+            if is_image:
+                format_list.append(url)
+        return (format_list, whole_body, pagure_attachments)
+
+    def _get_image_attachments(self, whole_body, pagure_attachments):
+        ''' Get the image attachments from github comment body '''
+
+        attach_regex = r'!\[.*\]\((.*)\)'
+        format_list, whole_body, pagure_attachments = self._get_attachments(
+            attach_regex=attach_regex,
+            whole_body=whole_body,
+            pagure_attachments=pagure_attachments,
+        )
+
         unformatted_body = re.sub(attach_regex, '\n[![%s](%s)](%s)', whole_body)
         whole_body = unformatted_body % tuple(format_list)
+        return whole_body, pagure_attachments
+
+    def _get_file_attachments(self, whole_body, pagure_attachments):
+        ''' Get the file from github comment body '''
+
+        attach_regex = r'\[.*\]\((.*%s\/.*files.*)\)' \
+            % self.github_project_name.replace('/', r'\/')
+        format_list, whole_body, pagure_attachments = self._get_attachments(
+            attach_regex=attach_regex,
+            whole_body=whole_body,
+            pagure_attachments=pagure_attachments,
+            is_image=False,
+        )
+        unformatted_body = re.sub(attach_regex, '\n[%s](%s)', whole_body)
+        whole_body = unformatted_body % tuple(format_list)
+        return whole_body, pagure_attachments
+
+    def get_comment_body(self, comment, pagure_attachments):
+        ''' Return the comment body. Check if there is
+        an attachment, if so return the attachment as well '''
+
+        whole_body = comment.body
+        whole_body, pagure_attachments = self._get_file_attachments(
+                            whole_body=whole_body,
+                            pagure_attachments=pagure_attachments
+        )
+        whole_body, pagure_attachments = self._get_image_attachments(
+                            whole_body=whole_body,
+                            pagure_attachments=pagure_attachments
+        )
+
         return whole_body, pagure_attachments
 
     def import_issues(self, repo, status='all'):
