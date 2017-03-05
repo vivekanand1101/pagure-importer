@@ -146,12 +146,10 @@ To add some new close status just edit the config file as follow. Where ```Foo``
     an email id for each user.
 
 3) Once the csv is filled:
-    $ pgimport github --import
 
-    or,
     $ pgimport github
 
-    Both will have same effect, this command will assume that you have the csv ready for use and will begin
+    This command will assume that you have the csv ready for use and will begin
     importing issues from github to your local git repository.
 
 3) The push command can be used to push a clone pagure ticket repo back to pagure.
