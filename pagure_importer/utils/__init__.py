@@ -312,3 +312,16 @@ def validate_gh_project(ctx, param, value):
         click.echo("Repo doesn't exist or is private")
         ctx.exit()
     return value
+
+
+def prepare_pagure_project(name, namespace, is_fork):
+    ''' Prepare pagure project name in a way that can be used to view
+    the attachments associated with the project's ticket attachments '''
+
+    pagure_project = name.rstrip('/').lstrip('/')
+    if namespace:
+        pagure_project = '/'.join([namespace, pagure_project])
+    if is_fork:
+        username = click.prompt('Pagure username')
+        pagure_project = '/'.join(['fork', username, pagure_project])
+    return pagure_project

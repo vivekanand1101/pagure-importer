@@ -4,7 +4,7 @@ import pagure_importer
 from pagure_importer.app import app, REPO_PATH
 from pagure_importer.utils.importer_github import GithubImporter
 from pagure_importer.utils import (
-    gh_get_contributors, gh_get_issue_users,
+    gh_get_contributors, gh_get_issue_users, prepare_pagure_project,
     gh_assemble_users, validate_gh_project,
 )
 
@@ -24,17 +24,21 @@ import pagure_importer.utils.git as gitutils
               help="Status of issue/PR to be imported(open/closed/all)")
 @click.option('--nopush', is_flag=True,
               help="Do not push the result of pagure-importer back")
-@click.option('--pagure_project',
-              prompt='Enter name of pagure project: \n'
-                     ' 1. it is a fork then like: fork/<username>/<projectname>\n'
-                     ' 2. it has a namespace: <namespacename>/<projectname>\n'
-                     ' 3. it is a fork of namespaced project:'
-                     ' fork/<username>/<namespacename>/<projectname>')
-def github(username, project, nopush, pagure_project, status, gencsv):
+@click.option('--pagure_project', prompt='Name of pagure project',
+              help="Name of the pagure project without namespace or 'fork'")
+@click.option('--namespace', help="Name of the namespace of the pagure project")
+@click.option('--is_fork', is_flag=True, default=False)
+def github(username, project, nopush, pagure_project,
+           status, gencsv, namespace, is_fork):
     ''' For imports from github '''
 
     password = click.prompt("Github Password", hide_input=True)
-    pagure_project = pagure_project.strip().strip('/')
+    pagure_project = prepare_pagure_project(
+        name=pagure_project,
+        namespace=namespace,
+        is_fork=is_fork
+    )
+
     if gencsv:
         gh_get_contributors(username, password, project)
         gh_get_issue_users(username, password, project)
