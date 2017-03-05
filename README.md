@@ -151,6 +151,16 @@ To add some new close status just edit the config file as follow. Where ```Foo``
 
     This command will assume that you have the csv ready for use and will begin
     importing issues from github to your local git repository.
+   If the project is under some namespace or is a fork, use the below commands instead:
+    $ pgimport github --namespace <namespacename>
+
+   If the project is a fork:
+    $ pgimport github --is_fork
+
+   The namespace and is_fork option can be joined, if the project is a fork of a namespaced project:
+    $ pgimport github --namespace <namespacename> --is_fork
+
+    The issues will be imported to /tmp/foobar.git repository.
 
 3) The push command can be used to push a clone pagure ticket repo back to pagure.
 
