@@ -17,7 +17,7 @@ from pagure_importer.utils.exceptions import (
 @click.option('--project',
               prompt='Enter github project name like pypingou/pagure',
               help="Github project like pypingou/pagure")
-@click.option('--gencsv/--import', default=False)
+@click.option('--gencsv', is_flag=True, default=False)
 @click.option('--status', type=click.Choice(['all', 'open', 'closed']),
               default='all',
               help="Status of issue/PR to be imported(open/closed/all)")
