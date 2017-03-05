@@ -83,6 +83,7 @@ class GithubImporter(object):
     def _get_image_attachments(self, whole_body, pagure_attachments):
         ''' Get the image attachments from github comment body '''
 
+        # Markdown for image: ![]()
         attach_regex = r'!\[.*\]\((.*)\)'
         format_list, whole_body, pagure_attachments = self._get_attachments(
             attach_regex=attach_regex,
@@ -97,6 +98,10 @@ class GithubImporter(object):
     def _get_file_attachments(self, whole_body, pagure_attachments):
         ''' Get the file from github comment body '''
 
+        # Markdown for a non-image file is same as any normal link ([]())
+        # in markdown. To differentiate i have used the url at which
+        # github stores these attachments:
+        # https://github.com/<username>/<project>/<files>/<someid>/<filename>
         attach_regex = r'\[.*\]\((.*%s\/.*files.*)\)' \
             % self.github_project_name.replace('/', r'\/')
         format_list, whole_body, pagure_attachments = self._get_attachments(
