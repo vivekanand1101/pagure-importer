@@ -11,11 +11,25 @@ from pagure_importer.utils.exceptions import (
     GithubRepoNotFound
 )
 
+
+def proper_gh_project(ctx, param, value):
+    ''' Check whether the github project name given via --project
+    is in the right format of not '''
+    if not value:
+        return
+    value = value.strip().strip('/')
+    if value.count('/') != 1:
+        click.echo('The name of the github project should be of the form:')
+        click.echo('<username>/<projectname> or <orgname>/<projectname>')
+        ctx.exit()
+
+
 @app.command()
 @click.option('--username', prompt='Enter your Github Username',
               help="Github username")
 @click.option('--project',
               prompt='Enter github project name like pypingou/pagure',
+              callback=proper_gh_project,
               help="Github project like pypingou/pagure")
 @click.option('--gencsv', is_flag=True, default=False)
 @click.option('--status', type=click.Choice(['all', 'open', 'closed']),
