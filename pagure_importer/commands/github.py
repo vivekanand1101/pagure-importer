@@ -1,4 +1,7 @@
 import click
+
+from github import Github
+
 import pagure_importer
 from pagure_importer.app import app, REPO_PATH
 from pagure_importer.utils.importer_github import GithubImporter
@@ -7,9 +10,6 @@ from pagure_importer.utils import (
 )
 
 import pagure_importer.utils.git as gitutils
-from pagure_importer.utils.exceptions import (
-    GithubRepoNotFound
-)
 
 
 def proper_gh_project(ctx, param, value):
@@ -22,15 +22,20 @@ def proper_gh_project(ctx, param, value):
         click.echo('The name of the github project should be of the form:')
         click.echo('<username>/<projectname> or <orgname>/<projectname>')
         ctx.exit()
+    github_obj = Github()
+    repo = github_obj.get_repo(value)
+    if not hasattr(repo, 'name'):
+        click.echo("Repo doesn't exist or is private")
+        ctx.exit()
 
 
 @app.command()
 @click.option('--username', prompt='Enter your Github Username',
               help="Github username")
 @click.option('--project',
-              prompt='Enter github project name like pypingou/pagure',
+              prompt='Github project name like pypingou/pagure',
               callback=proper_gh_project,
-              help="Github project like pypingou/pagure")
+              help="Github project name like pypingou/pagure")
 @click.option('--gencsv', is_flag=True, default=False)
 @click.option('--status', type=click.Choice(['all', 'open', 'closed']),
               default='all',
@@ -62,11 +67,6 @@ def github(username, project, nopush, status, gencsv):
 
                 repo = github_importer.github.get_repo(
                     github_importer.github_project_name)
-                try:
-                    repo_name = repo.name
-                except:
-                    raise GithubRepoNotFound(
-                            'Repo not found, project name wrong')
                 github_importer.import_issues(repo, status=status)
 
                 # update the local git repo
