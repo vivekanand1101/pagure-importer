@@ -311,3 +311,4 @@ def validate_gh_project(ctx, param, value):
     except UnknownObjectException:
         click.echo("Repo doesn't exist or is private")
         ctx.exit()
+    return value
