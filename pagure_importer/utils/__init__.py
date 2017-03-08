@@ -291,3 +291,20 @@ def get_secure_filename(attachment, filename):
     filename = '%s-%s' % (hashlib.sha256(attachment).hexdigest(),
                           werkzeug.secure_filename(str(filename)))
     return filename
+
+
+def validate_gh_project(ctx, param, value):
+    ''' Validate github project name, whether it's in the right format or not
+    and if the repo exists or not '''
+    if not value:
+        return
+    value = value.strip().strip('/')
+    if value.count('/') != 1:
+        click.echo('The name of the github project should be of the form:')
+        click.echo('<username>/<projectname> or <orgname>/<projectname>')
+        ctx.exit()
+    github_obj = Github()
+    repo = github_obj.get_repo(value)
+    if not hasattr(repo, 'name'):
+        click.echo("Repo doesn't exist or is private")
+        ctx.exit()

@@ -6,27 +6,11 @@ import pagure_importer
 from pagure_importer.app import app, REPO_PATH
 from pagure_importer.utils.importer_github import GithubImporter
 from pagure_importer.utils import (
-    gh_get_contributors, gh_get_issue_users, gh_assemble_users,
+    gh_get_contributors, gh_get_issue_users,
+    gh_assemble_users, validate_gh_project,
 )
 
 import pagure_importer.utils.git as gitutils
-
-
-def proper_gh_project(ctx, param, value):
-    ''' Check whether the github project name given via --project
-    is in the right format of not '''
-    if not value:
-        return
-    value = value.strip().strip('/')
-    if value.count('/') != 1:
-        click.echo('The name of the github project should be of the form:')
-        click.echo('<username>/<projectname> or <orgname>/<projectname>')
-        ctx.exit()
-    github_obj = Github()
-    repo = github_obj.get_repo(value)
-    if not hasattr(repo, 'name'):
-        click.echo("Repo doesn't exist or is private")
-        ctx.exit()
 
 
 @app.command()
@@ -34,7 +18,7 @@ def proper_gh_project(ctx, param, value):
               help="Github username")
 @click.option('--project',
               prompt='Github project name like pypingou/pagure',
-              callback=proper_gh_project,
+              callback=validate_gh_project,
               help="Github project name like pypingou/pagure")
 @click.option('--gencsv', is_flag=True, default=False)
 @click.option('--status', type=click.Choice(['all', 'open', 'closed']),
