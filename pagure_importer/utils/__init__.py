@@ -13,7 +13,7 @@ import werkzeug
 from urllib.parse import urlparse
 from configparser import ConfigParser
 from github import Github
-from github.GithubException import TwoFactorException
+from github.GithubException import TwoFactorException, UnknownObjectException
 from pagure_importer.utils.exceptions import FileNotFound, EmailNotFound
 from pagure_importer.app import REPO_PATH
 
@@ -305,6 +305,9 @@ def validate_gh_project(ctx, param, value):
         ctx.exit()
     github_obj = Github()
     repo = github_obj.get_repo(value)
-    if not hasattr(repo, 'name'):
+
+    try:
+        repo.name
+    except UnknownObjectException:
         click.echo("Repo doesn't exist or is private")
         ctx.exit()

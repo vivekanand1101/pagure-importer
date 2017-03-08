@@ -1,7 +1,5 @@
 import click
 
-from github import Github
-
 import pagure_importer
 from pagure_importer.app import app, REPO_PATH
 from pagure_importer.utils.importer_github import GithubImporter
