@@ -28,8 +28,10 @@ import pagure_importer.utils.git as gitutils
               help="Name of the pagure project without namespace or 'fork'")
 @click.option('--namespace', help="Name of the namespace of the pagure project")
 @click.option('--is_fork', is_flag=True, default=False)
+@click.option('--nosearch', is_flag=True,
+              help="Do not go through the list of commits to find email ids")
 def github(username, project, nopush, pagure_project,
-           status, gencsv, namespace, is_fork):
+           status, gencsv, namespace, is_fork, nosearch):
     ''' For imports from github '''
 
     password = click.prompt("Github Password", hide_input=True)
@@ -40,7 +42,8 @@ def github(username, project, nopush, pagure_project,
     )
 
     if gencsv:
-        gh_get_contributors(username, password, project)
+        if not nosearch:
+            gh_get_contributors(username, password, project)
         gh_get_issue_users(username, password, project)
         gh_assemble_users()
     else:

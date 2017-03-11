@@ -167,8 +167,10 @@ def gh_assemble_users():
     with open('issue_users.json', 'r') as ic:
         issue_names = json.load(ic)
 
-    with open('contributors.json', 'r') as c:
-        contributors = json.load(c)
+    contributors = json.dumps([])
+    if os.path.exists('contributors.json'):
+        with open('contributors.json', 'r') as c:
+            contributors = json.load(c)
 
     names = []
     for i in issue_names:
