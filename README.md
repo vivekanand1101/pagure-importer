@@ -143,7 +143,16 @@ To add some new close status just edit the config file as follow. Where ```Foo``
     This command will generate a csv file ```assembled_users.csv``` for you where all the contributors
     and issue commentors' username is given. A few of the email ids that pgimport could find from github
     is also mentioned. This csv has to be filled with the email ids of the user because pagure needs
-    an email id for each user.
+    an email id for each user. pgimport finds the emails by going through all the commits in the project
+    and taking out email ids from git commits which can take some time depending upon the number of commits
+    in the project.
+
+    If one wants to fill the csv yourself and not wait for pgimport to go through all the commits:
+
+    $ pgimport github --gencsv --nosearch
+
+    This will give out ```assembled_users.csv``` with all the users whose email ids must be known and should
+    be filled before going to the next step.
 
 3) Once the csv is filled:
 
